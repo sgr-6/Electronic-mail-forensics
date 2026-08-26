@@ -3,7 +3,7 @@ import axios from 'axios';
 import CytoscapeComponent from 'react-cytoscapejs';
 import { Share2, Crosshair } from 'lucide-react';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export default function CampaignGraph() {
   const [elements, setElements] = useState<any>([]);

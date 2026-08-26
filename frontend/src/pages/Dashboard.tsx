@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ShieldAlert, ShieldCheck, MailWarning, UploadCloud, Mail } from 'lucide-react';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<any>(null);

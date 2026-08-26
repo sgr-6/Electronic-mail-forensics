@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FileText, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export default function Reports() {
   const [cases, setCases] = useState<any[]>([]);
