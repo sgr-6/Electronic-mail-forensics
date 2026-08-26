@@ -34,6 +34,11 @@ from app.services.hop_tracer import parse_received_headers, find_originating_ip,
 from app.services.geo_resolver import geo_resolver
 from app.services.auth_engine import validate_all as validate_auth
 from app.services.reputation import reputation_checker
+from app.services.nlp_engine import nlp_engine
+from app.services.homoglyph_detector import homoglyph_detector
+from app.services.url_analyzer import url_analyzer
+from app.services.risk_scorer import risk_scorer
+from app.services.graph_engine import graph_engine
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +113,34 @@ async def analyze_email(
         # --- Step 5: Check IP reputation ---
         reputation_data = reputation_checker.check_many(public_ips)
 
-        # --- Step 6: Create case record ---
+        # --- Step 6: NLP Threat Analysis ---
+        nlp_results = nlp_engine.analyze(
+            subject=parsed["addresses"].get("subject"),
+            body_plain=parsed["body"].get("body_plain"),
+            body_html=parsed["body"].get("body_html"),
+            from_address=from_addr,
+            from_display=parsed["addresses"].get("from_display"),
+            to_address=parsed["addresses"].get("to_address"),
+            headers=parsed["headers"],
+        )
+
+        # --- Step 7: Domain & Typosquatting Analysis ---
+        domain_analysis = homoglyph_detector.check_domain(from_domain or "")
+
+        # --- Step 8: URL Analysis ---
+        analyzed_urls = url_analyzer.analyze_urls(parsed["attachments"] if "attachments" in parsed else parsed["urls"]) # Actually parsed["urls"]
+        analyzed_urls = url_analyzer.analyze_urls(parsed["urls"])
+
+        # --- Step 9: Composite Risk Scoring ---
+        risk_results = risk_scorer.score(
+            auth_results=auth_results,
+            nlp_results=nlp_results,
+            reputation_data=reputation_data,
+            domain_analysis=domain_analysis,
+            url_analysis=analyzed_urls,
+        )
+
+        # --- Step 10: Create case record ---
         case = EmailCase(
             filename=parsed["filename"],
             raw_hash_md5=parsed["hashes"]["md5"],
@@ -129,13 +161,26 @@ async def analyze_email(
             dkim_result=auth_results["dkim"]["result"],
             dmarc_result=auth_results["dmarc"]["result"],
             auth_details_json=json.dumps(auth_results, default=str),
-            risk_score=None,
-            risk_category="Pending",
-            threat_type=None,
+            risk_score=risk_results["composite_score"],
+            risk_category=risk_results["category"],
+            threat_type=risk_results["threat_type"],
+            nlp_details_json=json.dumps(nlp_results, default=str),
         )
         session.add(case)
+        session.flush()  # To get case.id for graph and relationships
 
-        # --- Step 7: Store hops with geo data ---
+        # --- Step 11: Add to Graph Engine ---
+        graph_engine.add_email_case({
+            "case_id": case.id,
+            "subject": case.subject,
+            "from_address": case.from_address,
+            "from_domain": from_domain,
+            "sender_ip": originating_ip,
+            "asn": reputation_data.get(originating_ip, {}).get("asn") if originating_ip else None,
+            "risk_category": case.risk_category,
+        })
+
+        # --- Step 12: Store hops with geo data ---
         for hop_data in hops:
             ip = hop_data.get("ip_address")
             geo = geo_data.get(ip, {}) if ip and not hop_data.get("is_private") else {}
@@ -159,24 +204,26 @@ async def analyze_email(
             )
             session.add(hop_record)
 
-        # --- Step 8: Store attachments ---
+        # --- Step 13: Store attachments ---
         for att_data in parsed["attachments"]:
             att_record = Attachment(
                 case_id=case.id,
                 filename=att_data["filename"],
                 content_type=att_data.get("content_type"),
                 size=att_data["size"],
-                sha256=att_data["sha256"],
+                hash_md5=att_data["hashes"]["md5"],
+                hash_sha1=att_data["hashes"]["sha1"],
+                hash_sha256=att_data["hashes"]["sha256"],
             )
             session.add(att_record)
 
-        # --- Step 9: Store URLs ---
-        for url_data in parsed["urls"]:
+        # --- Step 14: Store URLs ---
+        for url_data in analyzed_urls:
             url_record = ExtractedURL(
                 case_id=case.id,
                 url=url_data["url"],
-                defanged=url_data.get("defanged"),
-                anchor_text=url_data.get("anchor_text"),
+                domain=url_data["defanged"].split("/")[0] if "://" not in url_data["defanged"] else url_data["defanged"].split("://")[1].split("/")[0],
+                is_defanged=True,
                 is_suspicious=url_data.get("is_suspicious", False),
                 suspicion_reason=url_data.get("suspicion_reason"),
             )
