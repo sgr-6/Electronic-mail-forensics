@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+// @ts-ignore
 import CytoscapeComponent from 'react-cytoscapejs';
 import { Share2, Crosshair } from 'lucide-react';
 
@@ -29,7 +30,7 @@ export default function CampaignGraph() {
         }
 
         // Convert NetworkX node/link format to Cytoscape elements
-        const cyElements = [];
+        const cyElements: any[] = [];
         
         if (graphData.nodes) {
           graphData.nodes.forEach((node: any) => {
@@ -228,7 +229,7 @@ export default function CampaignGraph() {
           <div className="flex items-center justify-center h-full text-gray-500">No graph data available. Upload cases to build the graph.</div>
         ) : (
           <CytoscapeComponent 
-            cy={(cy) => { cyRef.current = cy; }}
+            cy={(cy: any) => { cyRef.current = cy; }}
             elements={elements} 
             layout={layout} 
             stylesheet={style}

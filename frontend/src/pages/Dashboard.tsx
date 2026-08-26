@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { ShieldAlert, ShieldCheck, MailWarning, UploadCloud, Mail } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export default function Dashboard() {
   const [imapError, setImapError] = useState('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetchData();

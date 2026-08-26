@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import { Routes, Route, NavLink } from 'react-router-dom';
 import { Shield, LayoutDashboard, Share2, FileText, Database } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CaseDetail from './pages/CaseDetail';
