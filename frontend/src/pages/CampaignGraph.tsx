@@ -1,20 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import CytoscapeComponent from 'react-cytoscapejs';
-import { Share2 } from 'lucide-react';
+import { Share2, Crosshair } from 'lucide-react';
 
 const API_URL = 'http://localhost:8000/api';
 
 export default function CampaignGraph() {
   const [elements, setElements] = useState<any>([]);
   const [loading, setLoading] = useState(true);
+  const [latestCaseId, setLatestCaseId] = useState<string | null>(null);
+  const cyRef = useRef<any>(null);
 
   useEffect(() => {
     const fetchGraph = async () => {
       try {
+        // 1. Fetch graph data
         const response = await axios.get(`${API_URL}/graph`);
         const graphData = response.data;
         
+        // 2. Fetch the most recent case to focus on
+        try {
+          const casesRes = await axios.get(`${API_URL}/cases?limit=1`);
+          if (casesRes.data && casesRes.data.length > 0) {
+            setLatestCaseId(casesRes.data[0].id);
+          }
+        } catch (e) {
+          console.error("Could not fetch latest case for focusing", e);
+        }
+
         // Convert NetworkX node/link format to Cytoscape elements
         const cyElements = [];
         
@@ -53,6 +66,25 @@ export default function CampaignGraph() {
     };
     fetchGraph();
   }, []);
+
+  // Function to focus the graph on the most recent case
+  const focusLatestCase = () => {
+    if (cyRef.current && latestCaseId) {
+      const node = cyRef.current.getElementById(latestCaseId);
+      if (node.length > 0) {
+        cyRef.current.animate({
+          fit: { eles: node.closedNeighborhood(), padding: 50 },
+          duration: 1000,
+          easing: 'ease-in-out'
+        });
+        // Highlight the node temporarily
+        node.style({'border-width': 4, 'border-color': '#fde047', 'background-color': '#eab308'});
+        setTimeout(() => {
+          node.removeStyle();
+        }, 3000);
+      }
+    }
+  };
 
   const layout = {
     name: 'cose',
@@ -162,6 +194,16 @@ export default function CampaignGraph() {
             Visualizes relationships between emails, infrastructure (IPs, domains), and threat campaigns.
           </p>
         </div>
+        
+        {latestCaseId && (
+          <button 
+            onClick={focusLatestCase}
+            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            <Crosshair className="w-5 h-5" />
+            Focus Recent Investigation
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex-1 overflow-hidden relative">
@@ -186,6 +228,7 @@ export default function CampaignGraph() {
           <div className="flex items-center justify-center h-full text-gray-500">No graph data available. Upload cases to build the graph.</div>
         ) : (
           <CytoscapeComponent 
+            cy={(cy) => { cyRef.current = cy; }}
             elements={elements} 
             layout={layout} 
             stylesheet={style}
