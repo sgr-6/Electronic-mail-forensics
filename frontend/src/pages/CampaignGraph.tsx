@@ -24,21 +24,21 @@ export default function CampaignGraph() {
               data: {
                 id: node.id,
                 label: node.label || node.id,
-                type: node.type,
+                type: node.group || node.type, // Map group to type for cy
                 risk: node.risk_score || 0
               }
             });
           });
         }
         
-        if (graphData.links) {
-          graphData.links.forEach((link: any, index: number) => {
+        if (graphData.edges) { // Use edges instead of links
+          graphData.edges.forEach((edge: any, index: number) => {
             cyElements.push({
               data: {
                 id: `e${index}`,
-                source: link.source,
-                target: link.target,
-                label: link.type || link.label || ''
+                source: edge.source,
+                target: edge.target,
+                label: edge.label || edge.type || ''
               }
             });
           });
@@ -118,6 +118,18 @@ export default function CampaignGraph() {
       style: { 'background-color': '#ec4899', 'shape': 'star', 'width': 64, 'height': 64, 'border-width': 3, 'border-color': '#fbcfe8' } // pink
     },
     {
+      selector: 'node[type = "Mailer"]',
+      style: { 'background-color': '#10b981', 'shape': 'triangle' } // emerald
+    },
+    {
+      selector: 'node[type = "UserAgent"]',
+      style: { 'background-color': '#14b8a6', 'shape': 'diamond' } // teal
+    },
+    {
+      selector: 'node[type = "TLSCipher"]',
+      style: { 'background-color': '#6366f1', 'shape': 'hexagon' } // indigo
+    },
+    {
       selector: 'edge',
       style: {
         'width': 2,
@@ -162,6 +174,8 @@ export default function CampaignGraph() {
             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-red-500 rotate-45 transform"></div><span>IP Address</span></div>
             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 clip-hexagon"></div><span>Domain</span></div>
             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-purple-500 rounded-md"></div><span>ASN</span></div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500" style={{clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)'}}></div><span>Mailer</span></div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-indigo-500 clip-hexagon"></div><span>Cipher</span></div>
             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-pink-500 rounded-full"></div><span>Campaign</span></div>
           </div>
         </div>
