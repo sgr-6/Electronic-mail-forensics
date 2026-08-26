@@ -280,6 +280,35 @@ async def list_cases(
 # GET /api/cases/{case_id} — Full case detail                               #
 # ========================================================================= #
 
+from fastapi.responses import Response
+
+@router.get("/api/cases/{case_id}/report")
+async def download_case_report(case_id: int, session: AsyncSession = Depends(get_session)):
+    """Download a forensic PDF report for a case."""
+    # Fetch case data
+    result = await session.execute(select(EmailCase).where(EmailCase.id == case_id))
+    case = result.scalar_one_or_none()
+    
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    # Fetch relations
+    hops = (await session.execute(select(EmailHop).where(EmailHop.case_id == case_id).order_by(EmailHop.sequence))).scalars().all()
+    attachments = (await session.execute(select(Attachment).where(Attachment.case_id == case_id))).scalars().all()
+    urls = (await session.execute(select(ExtractedURL).where(ExtractedURL.case_id == case_id))).scalars().all()
+
+    # Generate PDF
+    from app.services.report_generator import report_generator
+    pdf_bytes = report_generator.generate_pdf(case, list(hops), list(attachments), list(urls))
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="forensic_report_case_{case.id}.pdf"'
+        }
+    )
+
 @router.get(
     "/cases/{case_id}",
     response_model=CaseDetail,
