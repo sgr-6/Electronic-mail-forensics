@@ -44,6 +44,55 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["forensics"])
 
+from pydantic import BaseModel
+class IMAPRequest(BaseModel):
+    imap_server: str
+    email_user: str
+    app_password: str
+    limit: int = 5
+
+from app.services.imap_ingester import imap_ingester
+
+@router.post("/imap/fetch")
+async def fetch_imap_emails(req: IMAPRequest, session: AsyncSession = Depends(get_session)):
+    """Fetch emails via IMAP and analyze them."""
+    try:
+        raw_emails = imap_ingester.fetch_recent_emails(
+            req.imap_server, req.email_user, req.app_password, req.limit
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+        
+    if not raw_emails:
+        return {"message": "No emails found.", "cases": []}
+        
+    # Analyze each fetched email
+    processed_cases = []
+    
+    from io import BytesIO
+    import uuid
+    
+    for raw_bytes in raw_emails:
+        # Create a fake UploadFile object in memory
+        fake_file = UploadFile(
+            filename=f"imap_{uuid.uuid4().hex[:8]}.eml",
+            file=BytesIO(raw_bytes)
+        )
+        
+        try:
+            res = await analyze_email(file=fake_file, session=session)
+            processed_cases.append({
+                "id": res.case_id,
+                "subject": res.subject,
+                "risk_category": res.risk_category,
+                "risk_score": res.risk_score
+            })
+        except Exception as e:
+            logger.error(f"Failed to analyze IMAP email: {e}")
+            
+    return {"message": f"Successfully fetched and analyzed {len(processed_cases)} emails.", "cases": processed_cases}
+
+
 
 # ========================================================================= #
 # POST /api/analyze — Upload and analyze an .eml file                       #

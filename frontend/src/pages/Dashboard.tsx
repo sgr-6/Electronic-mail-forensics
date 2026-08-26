@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ShieldAlert, ShieldCheck, MailWarning, UploadCloud } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, MailWarning, UploadCloud, Mail } from 'lucide-react';
 
 const API_URL = 'http://localhost:8000/api';
 
@@ -9,7 +9,20 @@ export default function Dashboard() {
   const [stats, setStats] = useState<any>(null);
   const [cases, setCases] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  
+  // IMAP Modal State
+  const [showImapModal, setShowImapModal] = useState(false);
+  const [imapForm, setImapForm] = useState({
+    server: 'imap.gmail.com',
+    email: '',
+    password: '',
+    limit: 5
+  });
+  const [imapLoading, setImapLoading] = useState(false);
+  const [imapError, setImapError] = useState('');
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -28,27 +41,70 @@ export default function Dashboard() {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // Drag & Drop State
+  const [isDragging, setIsDragging] = useState(false);
 
-    const formData = new FormData();
-    formData.append('file', file);
+  const processFiles = async (files: FileList | File[]) => {
+    if (!files || files.length === 0) return;
 
     setUploading(true);
+    let successCount = 0;
+    
     try {
-      await axios.post(`${API_URL}/analyze`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      fetchData(); // Refresh data after successful upload
+      // Process files sequentially to avoid overwhelming the server
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file.name.endsWith('.eml') && !file.name.endsWith('.txt')) {
+          console.warn(`Skipping ${file.name}, not an .eml file`);
+          continue;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        await axios.post(`${API_URL}/analyze`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        successCount++;
+      }
+      
+      if (successCount > 0) {
+        fetchData(); // Refresh data after successful uploads
+      } else {
+        alert("No valid .eml files were found to upload.");
+      }
     } catch (error) {
       console.error("Upload failed", error);
-      alert("Failed to analyze email. See console for details.");
+      alert("Failed to analyze some emails. See console for details.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      processFiles(event.target.files);
+    }
+  };
+
+  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      processFiles(e.dataTransfer.files);
     }
   };
 
@@ -68,10 +124,19 @@ export default function Dashboard() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Platform Overview</h1>
         
-        <div>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setShowImapModal(true)}
+            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            <Mail className="w-5 h-5" />
+            Fetch from Gmail
+          </button>
+          
           <input 
             type="file" 
             accept=".eml" 
+            multiple
             className="hidden" 
             ref={fileInputRef}
             onChange={handleFileUpload}
@@ -82,7 +147,36 @@ export default function Dashboard() {
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
           >
             <UploadCloud className="w-5 h-5" />
-            {uploading ? 'Analyzing...' : 'Upload .EML'}
+            {uploading ? 'Analyzing...' : 'Upload .EML(s)'}
+          </button>
+        </div>
+      </div>
+
+      {/* Drag & Drop Area */}
+      <div 
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+        }`}
+      >
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <div className={`p-3 rounded-full ${isDragging ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500'}`}>
+            <UploadCloud className="w-8 h-8" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">
+            {uploading ? 'Uploading and analyzing emails...' : 'Drag & Drop .EML files here'}
+          </h3>
+          <p className="text-sm text-gray-500">
+            Select or drop multiple `.eml` files to batch analyze them instantly.
+          </p>
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+          >
+            Or click to browse files
           </button>
         </div>
       </div>
@@ -190,6 +284,91 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* IMAP Modal */}
+      {showImapModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Fetch Emails from Gmail (IMAP)</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Enter your Gmail address and an <a href="https://support.google.com/accounts/answer/185833" target="_blank" rel="noreferrer" className="text-blue-600 underline">App Password</a> (not your normal password).
+            </p>
+            
+            {imapError && (
+              <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm mb-4">
+                {imapError}
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input 
+                  type="email" 
+                  value={imapForm.email}
+                  onChange={(e) => setImapForm({...imapForm, email: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  placeholder="investigator@gmail.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">App Password</label>
+                <input 
+                  type="password" 
+                  value={imapForm.password}
+                  onChange={(e) => setImapForm({...imapForm, password: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  placeholder="16-character app password"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Number of Emails to Fetch</label>
+                <input 
+                  type="number" 
+                  min="1" max="20"
+                  value={imapForm.limit}
+                  onChange={(e) => setImapForm({...imapForm, limit: parseInt(e.target.value)})}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end gap-3">
+              <button 
+                onClick={() => setShowImapModal(false)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                disabled={imapLoading}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={async () => {
+                  setImapLoading(true);
+                  setImapError('');
+                  try {
+                    await axios.post(`${API_URL}/imap/fetch`, {
+                      imap_server: imapForm.server,
+                      email_user: imapForm.email,
+                      app_password: imapForm.password,
+                      limit: imapForm.limit
+                    });
+                    setShowImapModal(false);
+                    fetchData();
+                  } catch (err: any) {
+                    setImapError(err.response?.data?.detail || "Failed to fetch emails.");
+                  } finally {
+                    setImapLoading(false);
+                  }
+                }}
+                disabled={imapLoading || !imapForm.email || !imapForm.password}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {imapLoading ? 'Fetching & Analyzing...' : 'Fetch Emails'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
