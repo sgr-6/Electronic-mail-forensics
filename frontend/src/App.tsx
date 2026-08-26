@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import CaseDetail from './pages/CaseDetail';
 import CampaignGraph from './pages/CampaignGraph';
 import Reports from './pages/Reports';
+import SocHub from './pages/SocHub';
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/case/:id" element={<CaseDetail />} />
+              <Route path="/case/:id/soc" element={<SocHub />} />
               <Route path="/graph" element={<CampaignGraph />} />
               <Route path="/reports" element={<Reports />} />
             </Routes>

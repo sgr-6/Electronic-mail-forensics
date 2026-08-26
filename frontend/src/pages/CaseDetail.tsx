@@ -75,14 +75,23 @@ export default function CaseDetail() {
             </span>
           </div>
         </div>
-        <a 
-          href={`${API_URL}/cases/${id}/report`}
-          target="_blank"
-          className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          <Download className="w-5 h-5" />
-          Export PDF Report
-        </a>
+        <div className="flex gap-3">
+          <Link
+            to={`/case/${id}/soc`}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            <AlertTriangle className="w-5 h-5" />
+            SOC Active Response
+          </Link>
+          <a 
+            href={`${API_URL}/cases/${id}/report`}
+            target="_blank"
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            <Download className="w-5 h-5" />
+            Export PDF Report
+          </a>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
