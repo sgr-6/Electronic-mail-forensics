@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     app_port: int = 8000
     app_debug: bool = True
-    cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    cors_origins: str = "http://localhost:5173,http://localhost:3000,https://*.vercel.app,https://*.onrender.com"
 
     # --- Security ---
     secret_key: str = "dev-secret-key-change-in-production"
