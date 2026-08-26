@@ -28,8 +28,7 @@ data/models/*.pkl
 data/models/*.joblib
 
 # GeoIP databases (binary downloads)
-*.mmdb
-data/*.mmdb
+# *.mmdb (Removed to allow MaxMind DB to be pushed to github for cloud hosting)
 
 # Node / Frontend
 node_modules/

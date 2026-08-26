@@ -86,4 +86,5 @@ Copy `.env.example` to `.env` and configure as needed.
 
 ## 📄 License
 
-MIT License — Built for AICTE/SIH 2024
+MIT License — Built for AICTE/SIH 2026
+
