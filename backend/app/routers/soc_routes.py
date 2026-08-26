@@ -109,7 +109,7 @@ async def get_takedown(case_id: str, session: AsyncSession = Depends(get_session
     origin_ip = "Unknown"
     country = "Unknown"
     for h in hops:
-        if h.is_public_origin:
+        if h.is_originating:
             origin_ip = h.ip_address
             country = h.country_iso or "Unknown"
             break
@@ -125,7 +125,7 @@ async def get_rules(case_id: str, session: AsyncSession = Depends(get_session)):
     
     origin_ip = ""
     for h in hops:
-        if h.is_public_origin:
+        if h.is_originating:
             origin_ip = h.ip_address
             break
             

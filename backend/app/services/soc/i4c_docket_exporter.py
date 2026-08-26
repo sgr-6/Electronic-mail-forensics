@@ -50,7 +50,7 @@ class I4CDocketExporter:
                 "ip_address": hop.ip_address,
                 "country": hop.country,
                 "isp": hop.isp,
-                "is_public_origin": hop.is_public_origin
+                "is_public_origin": hop.is_originating
             })
 
         return json.dumps(docket, indent=2)

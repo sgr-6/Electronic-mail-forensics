@@ -35,16 +35,16 @@ class InfraFingerprinter:
         if x_mailer:
             fingerprints["x_mailer"] = str(x_mailer).strip()
             # Add to graph
-            graph_engine.add_node(fingerprints["x_mailer"], label=fingerprints["x_mailer"], type="Mailer")
-            graph_engine.add_edge(case_id, fingerprints["x_mailer"], label="USES_MAILER")
+            graph_engine.nx_graph.add_node(fingerprints["x_mailer"], label=fingerprints["x_mailer"], type="Mailer")
+            graph_engine.nx_graph.add_edge(case_id, fingerprints["x_mailer"], type="USES_MAILER")
 
         user_agent = headers.get("User-Agent")
         if isinstance(user_agent, list): user_agent = user_agent[0]
         if user_agent:
             fingerprints["user_agent"] = str(user_agent).strip()
             # Add to graph
-            graph_engine.add_node(fingerprints["user_agent"], label=fingerprints["user_agent"], type="UserAgent")
-            graph_engine.add_edge(case_id, fingerprints["user_agent"], label="USES_USERAGENT")
+            graph_engine.nx_graph.add_node(fingerprints["user_agent"], label=fingerprints["user_agent"], type="UserAgent")
+            graph_engine.nx_graph.add_edge(case_id, fingerprints["user_agent"], type="USES_USERAGENT")
 
         # 2. TLS Ciphers from Received Chain
         ciphers_found = set()
@@ -58,8 +58,8 @@ class InfraFingerprinter:
         fingerprints["tls_ciphers"] = list(ciphers_found)
         
         for cipher in ciphers_found:
-            graph_engine.add_node(cipher, label=cipher, type="TLSCipher")
-            graph_engine.add_edge(case_id, cipher, label="USES_CIPHER")
+            graph_engine.nx_graph.add_node(cipher, label=cipher, type="TLSCipher")
+            graph_engine.nx_graph.add_edge(case_id, cipher, type="USES_CIPHER")
 
         return fingerprints
 
