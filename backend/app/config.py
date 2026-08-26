@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     neo4j_enabled: bool = False
 
     # --- MaxMind GeoIP ---
-    geoip_db_path: str = "./data/GeoLite2-City.mmdb"
+    geoip_db_path: str = "./data/GeoLite2.mmdb"
 
     # --- AbuseIPDB ---
     abuseipdb_api_key: str = ""
