@@ -1,10 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { Shield, LayoutDashboard, Share2, FileText } from 'lucide-react';
+import { Shield, LayoutDashboard, Share2, FileText, Database } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CaseDetail from './pages/CaseDetail';
 import CampaignGraph from './pages/CampaignGraph';
 import Reports from './pages/Reports';
 import SocHub from './pages/SocHub';
+import AllCases from './pages/AllCases';
 
 function App() {
   return (
@@ -23,6 +24,13 @@ function App() {
             >
               <LayoutDashboard className="w-5 h-5" />
               Dashboard
+            </NavLink>
+            <NavLink 
+              to="/cases" 
+              className={({isActive}) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
+            >
+              <Database className="w-5 h-5" />
+              All Cases
             </NavLink>
             <NavLink 
               to="/graph" 
@@ -50,6 +58,7 @@ function App() {
           <div className="p-8">
             <Routes>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/cases" element={<AllCases />} />
               <Route path="/case/:id" element={<CaseDetail />} />
               <Route path="/case/:id/soc" element={<SocHub />} />
               <Route path="/graph" element={<CampaignGraph />} />
