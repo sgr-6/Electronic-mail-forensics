@@ -99,7 +99,11 @@ async def get_i4c_docket(case_id: str, session: AsyncSession = Depends(get_sessi
         crypto_res.get("extracted_wallets", []),
         smuggling_res.get("smuggled_files", [])
     )
-    return JSONResponse(content=json.loads(json_data))
+    return Response(
+        content=json_data,
+        media_type="application/json",
+        headers={"Content-Disposition": f"attachment; filename=I4C_Docket_{case_id}.json"}
+    )
 
 @router.get("/takedown-notice/{case_id}")
 async def get_takedown(case_id: str, session: AsyncSession = Depends(get_session)):
@@ -115,7 +119,11 @@ async def get_takedown(case_id: str, session: AsyncSession = Depends(get_session
             break
             
     notice = abuse_takedown_generator.generate_notice(case, origin_ip, country)
-    return notice
+    return Response(
+        content=notice["body"],
+        media_type="text/plain",
+        headers={"Content-Disposition": f"attachment; filename=Takedown_Notice_{case_id}.txt"}
+    )
 
 @router.get("/rules/{case_id}")
 async def get_rules(case_id: str, session: AsyncSession = Depends(get_session)):
@@ -131,7 +139,10 @@ async def get_rules(case_id: str, session: AsyncSession = Depends(get_session)):
             
     suricata_rule = yara_suricata_generator.generate_suricata(origin_ip, list(urls))
     
-    return {
-        "yara": yara_rule,
-        "suricata": suricata_rule
-    }
+    combined_rules = f"=== YARA RULES ===\n\n{yara_rule}\n\n=== SURICATA RULES ===\n\n{suricata_rule}"
+    
+    return Response(
+        content=combined_rules,
+        media_type="text/plain",
+        headers={"Content-Disposition": f"attachment; filename=Rules_{case_id}.txt"}
+    )
