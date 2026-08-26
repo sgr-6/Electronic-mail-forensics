@@ -125,37 +125,10 @@ class GeoResolver:
 
     def _mock_resolve(self, ip_address: str) -> dict[str, Any]:
         """
-        Deterministic mock resolver.
-
-        Uses IP prefix mapping for known sample IPs, otherwise
-        hashes the IP to pick a consistent location from the pool.
+        Mock resolver is disabled by user request.
+        Returns empty geolocation data when MaxMind DB is missing.
         """
-        # Check prefix map first (for sample email demo consistency)
-        for prefix, idx in _IP_PREFIX_MAP.items():
-            if ip_address.startswith(prefix):
-                loc = _MOCK_LOCATIONS[idx]
-                return {
-                    "latitude": loc["lat"],
-                    "longitude": loc["lon"],
-                    "city": loc["city"],
-                    "country": loc["country"],
-                    "country_iso": loc["country_iso"],
-                    "isp": loc["isp"],
-                    "asn": loc["asn"],
-                }
-
-        # Hash-based deterministic fallback for unknown IPs
-        ip_hash = int(hashlib.md5(ip_address.encode()).hexdigest(), 16)
-        loc = _MOCK_LOCATIONS[ip_hash % len(_MOCK_LOCATIONS)]
-        return {
-            "latitude": loc["lat"],
-            "longitude": loc["lon"],
-            "city": loc["city"],
-            "country": loc["country"],
-            "country_iso": loc["country_iso"],
-            "isp": loc["isp"],
-            "asn": loc["asn"],
-        }
+        return _empty_result()
 
     def resolve_many(self, ip_addresses: list[str]) -> dict[str, dict[str, Any]]:
         """Resolve multiple IPs. Returns dict keyed by IP address."""
