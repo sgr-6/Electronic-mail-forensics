@@ -1,0 +1,78 @@
+Return-Path: <security-alert@mail.secure-verify.net>
+Received: from unknown (HELO mail.secure-verify.net) (185.234.72.19)
+        by mx.example.com with SMTP; Wed, 20 Mar 2024 14:22:10 +0000
+Received: from vps-node.hostingservice.ru (vps-node.hostingservice.ru [91.215.85.123])
+        by mail.secure-verify.net (Postfix) with ESMTP id XYZ999888;
+        Wed, 20 Mar 2024 14:22:05 +0000
+Received: from localhost (localhost [127.0.0.1])
+        by vps-node.hostingservice.ru with ESMTP id PHISH001;
+        Wed, 20 Mar 2024 14:22:00 +0000
+Authentication-Results: mx.example.com;
+        spf=fail (sender IP not in SPF record) smtp.mailfrom=secure-verify.net;
+        dkim=none;
+        dmarc=fail (p=NONE) header.from=secure-verify.net
+From: "Microsoft Account Security" <security-alert@mail.secure-verify.net>
+To: <analyst@example.com>
+Subject: [URGENT] Your account has been compromised - Verify immediately
+Date: Wed, 20 Mar 2024 14:22:00 +0000
+Message-ID: <phish-20240320-001@secure-verify.net>
+MIME-Version: 1.0
+X-Mailer: PHPMailer 6.8.0
+X-Priority: 1 (Highest)
+X-Spam-Flag: YES
+Content-Type: multipart/alternative; boundary="----=_Phish_Boundary_99887"
+
+------=_Phish_Boundary_99887
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+URGENT SECURITY ALERT
+
+We detected unauthorized access to your Microsoft 365 account from an unknown location (Russia, Moscow).
+
+Your account will be PERMANENTLY SUSPENDED within 24 hours if you do not verify your identity immediately.
+
+Action Required:
+Click here to verify your account: http://microsoft-365-verify.secure-check.xyz/login?ref=urgent&session=abc123
+
+If you do not act NOW, you will lose access to ALL your files and emails permanently.
+
+Do NOT ignore this message. Your account security is at risk.
+
+Microsoft Security Team
+This is an automated message - do not reply
+
+------=_Phish_Boundary_99887
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
+<div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden;">
+<div style="background: #d32f2f; color: white; padding: 20px; text-align: center;">
+<h2 style="margin: 0;">&#9888;&#65039; URGENT SECURITY ALERT &#9888;&#65039;</h2>
+</div>
+<div style="padding: 30px;">
+<p style="font-size: 16px;">Dear Valued Customer,</p>
+<p>We detected <b>unauthorized access</b> to your Microsoft 365 account from an unknown location (<b>Russia, Moscow</b>).</p>
+<p style="color: #d32f2f; font-weight: bold; font-size: 15px; border: 2px solid #d32f2f; padding: 15px; border-radius: 5px; background: #fff3f3;">
+WARNING: Your account will be PERMANENTLY SUSPENDED within 24 hours if you do not verify your identity immediately.
+</p>
+<div style="text-align: center; margin: 30px 0;">
+<a href="http://microsoft-365-verify.secure-check.xyz/login?ref=urgent&session=abc123"
+   style="background: #0078d4; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block;">
+Verify Your Account Now
+</a>
+</div>
+<p>If you do not act <b>NOW</b>, you will lose access to <b>ALL</b> your files and emails permanently.</p>
+<p style="color: #888;">Do NOT ignore this message. Your account security is at immediate risk.</p>
+<hr style="border: none; border-top: 1px solid #eee;">
+<p style="color: #999; font-size: 12px;">Microsoft Security Team<br>This is an automated message - do not reply<br>
+<a href="http://microsoft-365-verify.secure-check.xyz/unsubscribe">Unsubscribe</a></p>
+</div>
+</div>
+</body>
+</html>
+
+------=_Phish_Boundary_99887--

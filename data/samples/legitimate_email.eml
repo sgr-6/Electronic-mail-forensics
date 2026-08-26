@@ -1,0 +1,75 @@
+Return-Path: <john.smith@techcorp.com>
+Received: from mail-out.techcorp.com (mail-out.techcorp.com [203.0.113.50])
+        by mx.example.com (Postfix) with ESMTPS id ABC12345
+        for <analyst@example.com>; Mon, 15 Jan 2024 09:30:00 +0000 (UTC)
+Received: from internal-relay.techcorp.com (internal-relay.techcorp.com [10.0.1.5])
+        by mail-out.techcorp.com (Postfix) with ESMTP id DEF45678;
+        Mon, 15 Jan 2024 09:29:55 +0000 (UTC)
+Received: from workstation.techcorp.local (workstation.techcorp.local [192.168.1.100])
+        by internal-relay.techcorp.com (Postfix) with ESMTP id GHI78901;
+        Mon, 15 Jan 2024 09:29:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=techcorp.com;
+        s=selector1; h=from:to:subject:date:message-id;
+        bh=2jUSOH9NhtVGCQWNr9BrIAPreKQjO6Sn7XIkfJVOzv8=;
+        b=dGVzdHNpZ25hdHVyZWRhdGExMjM0NTY3ODkwYWJjZGVm
+Authentication-Results: mx.example.com;
+        spf=pass (sender SPF authorized) smtp.mailfrom=techcorp.com;
+        dkim=pass header.d=techcorp.com header.s=selector1;
+        dmarc=pass (p=REJECT) header.from=techcorp.com
+From: "John Smith" <john.smith@techcorp.com>
+To: "Security Analyst" <analyst@example.com>
+Subject: Q4 2024 Budget Review Meeting
+Date: Mon, 15 Jan 2024 09:29:45 +0000
+Message-ID: <20240115092945.ABC123@techcorp.com>
+MIME-Version: 1.0
+X-Mailer: Microsoft Outlook 16.0
+Content-Type: multipart/alternative; boundary="----=_Part_Budget_12345"
+
+------=_Part_Budget_12345
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Hi Team,
+
+Please find attached the Q4 2024 budget review documents. The meeting is scheduled for Thursday at 2 PM in Conference Room B.
+
+Agenda:
+1. Revenue actuals vs forecast
+2. Department expense review
+3. Capital expenditure proposals
+4. Q1 2025 preliminary budget
+
+Let me know if you have any questions or if the time doesn't work for you.
+
+Best regards,
+John Smith
+Senior Finance Manager
+TechCorp Inc.
+Phone: +1 (555) 234-5678
+
+------=_Part_Budget_12345
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Calibri, Arial, sans-serif; font-size: 14px; color: #333;">
+<p>Hi Team,</p>
+<p>Please find attached the Q4 2024 budget review documents. The meeting is scheduled for <strong>Thursday at 2 PM</strong> in Conference Room B.</p>
+<p><strong>Agenda:</strong></p>
+<ol>
+<li>Revenue actuals vs forecast</li>
+<li>Department expense review</li>
+<li>Capital expenditure proposals</li>
+<li>Q1 2025 preliminary budget</li>
+</ol>
+<p>Let me know if you have any questions or if the time doesn't work for you.</p>
+<p>Best regards,<br>
+<strong>John Smith</strong><br>
+Senior Finance Manager<br>
+TechCorp Inc.<br>
+Phone: +1 (555) 234-5678</p>
+</body>
+</html>
+
+------=_Part_Budget_12345--

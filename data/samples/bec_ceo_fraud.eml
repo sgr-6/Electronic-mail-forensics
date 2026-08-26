@@ -1,0 +1,46 @@
+Return-Path: <ceo-office@techcorp-inc.com>
+Received: from smtp-relay.gmail.com (smtp-relay.gmail.com [209.85.220.41])
+        by mx.example.com with ESMTPS id BEC77788899;
+        Fri, 05 Apr 2024 16:45:30 +0000
+Received: from unknown (HELO mail-sender.cheap-vps.net) (45.227.253.109)
+        by smtp-relay.gmail.com with SMTP id FRAUD12345;
+        Fri, 05 Apr 2024 16:45:25 +0000
+Authentication-Results: mx.example.com;
+        spf=softfail (domain does not designate 45.227.253.109 as permitted sender) smtp.mailfrom=techcorp-inc.com;
+        dkim=none;
+        dmarc=fail (p=NONE) header.from=techcorp-inc.com
+From: "Robert Williams - CEO" <r.williams@techcorp-inc.com>
+Reply-To: <robert.williams.ceo.private@gmail.com>
+To: "Sarah Johnson - CFO" <s.johnson@example.com>
+Subject: Confidential - Urgent Wire Transfer Required
+Date: Fri, 05 Apr 2024 16:45:20 +0000
+Message-ID: <bec-20240405-wire@techcorp-inc.com>
+MIME-Version: 1.0
+X-Priority: 1 (Highest)
+X-Mailer: Apple Mail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Sarah,
+
+I need you to process an urgent wire transfer today before end of business. This is related to a confidential acquisition that I'm handling directly with the board.
+
+Please wire $487,000 to the following account:
+
+Bank: First International Bank, Singapore
+Account Name: Apex Holdings Ltd
+Account Number: 8827-4451-9930
+SWIFT: FIBKSGSG
+Reference: Project Phoenix - Confidential
+
+This is extremely time-sensitive and must be completed today. Please do NOT discuss this with anyone else on the team as the deal is under strict NDA.
+
+I'm in back-to-back board meetings all day and unavailable by phone. Please confirm via email once the transfer is initiated.
+
+Thank you for handling this promptly.
+
+Robert Williams
+Chief Executive Officer
+TechCorp Inc.
+
+Sent from my iPhone

@@ -1,0 +1,65 @@
+# Environment & Secrets
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+venv/
+.venv/
+
+# ML Models (large binary files)
+*.pkl
+*.joblib
+*.onnx
+data/models/*.pkl
+data/models/*.joblib
+
+# GeoIP databases (binary downloads)
+*.mmdb
+data/*.mmdb
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Docker
+docker-compose.override.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database files (local SQLite)
+*.db
+*.sqlite
+*.sqlite3
+
+# Reports output
+reports/*.pdf
+
+# Logs
+*.log
+logs/

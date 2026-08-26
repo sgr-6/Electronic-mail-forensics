@@ -1,0 +1,121 @@
+Return-Path: <bounce-handler@mass-mailer.xyz>
+Received: from edge-proxy.example.com (edge-proxy.example.com [198.51.100.25])
+        by mx.example.com with ESMTPS id SPOOF001122;
+        Tue, 12 Feb 2024 11:00:15 +0000
+Received: from mail-node-3.mass-mailer.xyz (mail-node-3.mass-mailer.xyz [103.45.67.89])
+        by edge-proxy.example.com with ESMTP id RELAY334455;
+        Tue, 12 Feb 2024 11:00:10 +0000
+Received: from localhost (localhost [127.0.0.1])
+        by mail-node-3.mass-mailer.xyz with ESMTP id LOCAL556677;
+        Tue, 12 Feb 2024 10:59:58 +0000
+Authentication-Results: mx.example.com;
+        spf=fail (domain aicte-india.org does not designate 103.45.67.89 as permitted sender) smtp.mailfrom=mass-mailer.xyz;
+        dkim=none;
+        dmarc=fail (p=REJECT) header.from=aicte-india.org
+From: "IT Department - AICTE India" <admin@aicte-india.org>
+Sender: <spammer@mass-mailer.xyz>
+To: <faculty@example.com>
+Subject: Important: Update Your AICTE Faculty Profile Credentials
+Date: Tue, 12 Feb 2024 10:59:50 +0000
+Message-ID: <spoof-20240212-cred@mass-mailer.xyz>
+MIME-Version: 1.0
+X-Mailer: Mass Mailer Pro v2.1
+X-Original-Sender: spammer@mass-mailer.xyz
+Content-Type: multipart/mixed; boundary="----=_Spoof_Mixed_Boundary"
+
+------=_Spoof_Mixed_Boundary
+Content-Type: multipart/alternative; boundary="----=_Spoof_Alt_Boundary"
+
+------=_Spoof_Alt_Boundary
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Dear Faculty Member,
+
+As part of our annual security audit, all faculty members registered on the AICTE portal are required to update their login credentials by February 15, 2024.
+
+This is a mandatory requirement from the Ministry of Education. Failure to update your credentials will result in temporary suspension of your faculty profile and may affect your institution's accreditation status.
+
+Please update your credentials here:
+http://aicte-india-portal.mass-mailer.xyz/update?token=abc123def456
+
+Required Information:
+- Current Username and Password
+- New Password (minimum 8 characters)
+- Mobile Number for OTP Verification
+- Aadhaar Number (for identity verification)
+
+This action must be completed within 72 hours.
+
+Regards,
+IT Security Team
+All India Council for Technical Education (AICTE)
+Nelson Mandela Marg, Vasant Kunj
+New Delhi - 110070
+
+------=_Spoof_Alt_Boundary
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f0f0;">
+<div style="max-width: 650px; margin: 20px auto; background: white; border: 1px solid #ddd;">
+<div style="background: #1a237e; padding: 20px; text-align: center;">
+<img src="https://fake-cdn.mass-mailer.xyz/aicte-logo.png" alt="AICTE Logo" width="180" style="margin-bottom: 10px;">
+<h2 style="color: white; margin: 5px 0;">AICTE Faculty Portal</h2>
+<p style="color: #bbdefb; margin: 0;">Credential Update Required</p>
+</div>
+<div style="padding: 30px;">
+<p>Dear Faculty Member,</p>
+<p>As part of our <strong>annual security audit</strong>, all faculty members registered on the AICTE portal are required to update their login credentials by <strong style="color: #d32f2f;">February 15, 2024</strong>.</p>
+<p>This is a <strong>mandatory requirement</strong> from the Ministry of Education. Failure to update your credentials will result in:</p>
+<ul>
+<li>Temporary suspension of your faculty profile</li>
+<li>Impact on your institution's accreditation status</li>
+<li>Loss of access to AICTE services</li>
+</ul>
+<div style="text-align: center; margin: 25px 0;">
+<a href="http://aicte-india-portal.mass-mailer.xyz/update?token=abc123def456"
+   style="background: #1a237e; color: white; padding: 14px 35px; text-decoration: none; border-radius: 4px; font-size: 15px; font-weight: bold;">
+Update Credentials Now
+</a>
+</div>
+<p><strong>Required Information:</strong></p>
+<ul>
+<li>Current Username and Password</li>
+<li>New Password (minimum 8 characters)</li>
+<li>Mobile Number for OTP Verification</li>
+<li>Aadhaar Number (for identity verification)</li>
+</ul>
+<p style="color: #d32f2f; font-weight: bold;">This action must be completed within 72 hours.</p>
+<hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+<p style="font-size: 12px; color: #666;">
+Regards,<br>
+<strong>IT Security Team</strong><br>
+All India Council for Technical Education (AICTE)<br>
+Nelson Mandela Marg, Vasant Kunj<br>
+New Delhi - 110070<br>
+<a href="http://aicte-india-portal.mass-mailer.xyz">www.aicte-india.org</a>
+</p>
+</div>
+</div>
+</body>
+</html>
+
+------=_Spoof_Alt_Boundary--
+
+------=_Spoof_Mixed_Boundary
+Content-Type: application/pdf; name="AICTE_Credential_Update_Form.pdf"
+Content-Disposition: attachment; filename="AICTE_Credential_Update_Form.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5k
+b2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4K
+ZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3gg
+WzAgMCA2MTIgNzkyXSA+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAow
+MDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNjMgMDAwMDAgbiAKMDAwMDAwMDEyMCAwMDAw
+MCBuIAp0cmFpbGVyCjw8IC9TaXplIDQgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjE3OAol
+JUVPRA==
+
+------=_Spoof_Mixed_Boundary--

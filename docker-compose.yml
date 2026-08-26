@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  # PostgreSQL - Optional (default is SQLite)
+  postgres:
+    image: postgres:16-alpine
+    container_name: email_forensics_pg
+    environment:
+      POSTGRES_DB: email_forensics
+      POSTGRES_USER: forensics
+      POSTGRES_PASSWORD: forensics_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forensics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Neo4j - Optional (default is NetworkX in-memory)
+  neo4j:
+    image: neo4j:5-community
+    container_name: email_forensics_neo4j
+    environment:
+      NEO4J_AUTH: neo4j/changeme
+      NEO4J_PLUGINS: '["apoc"]'
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4jdata:/data
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  neo4jdata:
