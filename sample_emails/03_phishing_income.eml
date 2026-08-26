@@ -1,0 +1,20 @@
+Subject: Income Tax Refund Initiated
+From: Income Tax Dept <refunds@incometax-gov-in.org>
+To: taxpayer@gmail.com
+Date: Mon, 17 Aug 2026 18:48:32 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Received: from unknown (HELO mail-sender.cheap-vps.net) (45.227.253.109) by
+ smtp-relay.gmail.com
+Received: from smtp-relay.gmail.com (209.85.220.41) by mx.google.com
+X-Mailer: PHP/5.6.0
+
+Dear Taxpayer,
+
+Your Income Tax Refund for Assessment Year 2023-24 of Rs. 12,500 has been app=
+roved. Please verify your bank account details here to process the NEFT trans=
+fer: http://incometax-refund-portal.tk/verify
+
+Regards,
+ITD Processing Center

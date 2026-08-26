@@ -1,0 +1,20 @@
+Subject: HDFC Bank: Suspicious Transaction Detected
+From: HDFC Alerts <security@hdfc-alerts-secure.com>
+To: user@company.in
+Date: Sun, 09 Aug 2026 18:48:32 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Received: from unknown (HELO mail-sender.cheap-vps.net) (45.227.253.109) by
+ smtp-relay.gmail.com
+Received: from smtp-relay.gmail.com (209.85.220.41) by mx.google.com
+X-Mailer: PHP/5.6.0
+
+Dear Account Holder,
+
+We detected a suspicious wire transfer of Rs. 45,000 from your account. If yo=
+u did not authorize this, please login to cancel the transaction immediately:=
+ http://hdfc-cancel-txn.xyz
+
+Sincerely,
+HDFC Fraud Prevention

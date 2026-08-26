@@ -1,0 +1,16 @@
+Subject: Aadhaar e-KYC Verification Failed
+From: UIDAI Support <support@uidai-ekyc-gov.in>
+To: citizen@gmail.com
+Date: Fri, 31 Jul 2026 18:48:32 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Received: from unknown (HELO mail-sender.cheap-vps.net) (45.227.253.109) by
+ smtp-relay.gmail.com
+Received: from smtp-relay.gmail.com (209.85.220.41) by mx.google.com
+X-Mailer: PHP/5.6.0
+
+Your Aadhaar e-KYC for your mobile number failed. Login to verify your identi=
+ty: http://uidai-verify-portal.xyz/login
+
+UIDAI
