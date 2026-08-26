@@ -30,7 +30,10 @@ from app.schemas import (
     StatsResponse,
 )
 from app.services.eml_parser import EMLParser
-from app.services.hop_tracer import parse_received_headers
+from app.services.hop_tracer import parse_received_headers, find_originating_ip, get_public_ips
+from app.services.geo_resolver import geo_resolver
+from app.services.auth_engine import validate_all as validate_auth
+from app.services.reputation import reputation_checker
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +82,33 @@ async def analyze_email(
         # --- Step 2: Trace hops ---
         hops = parse_received_headers(parsed["received_headers"])
 
-        # --- Step 3: Create case record ---
+        # --- Step 3: Geo-resolve public IPs ---
+        originating_ip = find_originating_ip(hops)
+        public_ips = get_public_ips(hops)
+        geo_data = geo_resolver.resolve_many(public_ips)
+
+        # --- Step 4: Run sender authentication ---
+        from_domain = None
+        from_addr = parsed["addresses"].get("from_address", "")
+        if "@" in from_addr:
+            from_domain = from_addr.split("@", 1)[1]
+
+        envelope_domain = None
+        return_path = parsed["addresses"].get("return_path", "")
+        if "@" in return_path:
+            envelope_domain = return_path.split("@", 1)[1].rstrip(">")
+
+        auth_results = validate_auth(
+            raw_email=raw_bytes,
+            sender_ip=originating_ip,
+            from_domain=from_domain,
+            envelope_domain=envelope_domain,
+        )
+
+        # --- Step 5: Check IP reputation ---
+        reputation_data = reputation_checker.check_many(public_ips)
+
+        # --- Step 6: Create case record ---
         case = EmailCase(
             filename=parsed["filename"],
             raw_hash_md5=parsed["hashes"]["md5"],
@@ -96,32 +125,41 @@ async def analyze_email(
             body_plain=parsed["body"].get("body_plain"),
             body_html=parsed["body"].get("body_html"),
             headers_json=json.dumps(parsed["headers"], default=str),
-            # Auth and NLP results will be populated in later phases
-            spf_result="pending",
-            dkim_result="pending",
-            dmarc_result="pending",
+            spf_result=auth_results["spf"]["result"],
+            dkim_result=auth_results["dkim"]["result"],
+            dmarc_result=auth_results["dmarc"]["result"],
+            auth_details_json=json.dumps(auth_results, default=str),
             risk_score=None,
             risk_category="Pending",
             threat_type=None,
         )
         session.add(case)
 
-        # --- Step 4: Store hops ---
+        # --- Step 7: Store hops with geo data ---
         for hop_data in hops:
+            ip = hop_data.get("ip_address")
+            geo = geo_data.get(ip, {}) if ip and not hop_data.get("is_private") else {}
             hop_record = EmailHop(
                 case_id=case.id,
                 sequence=hop_data["sequence"],
                 from_host=hop_data.get("from_host"),
                 by_host=hop_data.get("by_host"),
-                ip_address=hop_data.get("ip_address"),
+                ip_address=ip,
                 timestamp=hop_data.get("timestamp"),
                 raw_header=hop_data["raw_header"],
                 is_private=hop_data.get("is_private", False),
                 is_originating=hop_data.get("is_originating", False),
+                latitude=geo.get("latitude"),
+                longitude=geo.get("longitude"),
+                city=geo.get("city"),
+                country=geo.get("country"),
+                country_iso=geo.get("country_iso"),
+                isp=geo.get("isp"),
+                asn=geo.get("asn"),
             )
             session.add(hop_record)
 
-        # --- Step 5: Store attachments ---
+        # --- Step 8: Store attachments ---
         for att_data in parsed["attachments"]:
             att_record = Attachment(
                 case_id=case.id,
@@ -132,7 +170,7 @@ async def analyze_email(
             )
             session.add(att_record)
 
-        # --- Step 6: Store URLs ---
+        # --- Step 9: Store URLs ---
         for url_data in parsed["urls"]:
             url_record = ExtractedURL(
                 case_id=case.id,
