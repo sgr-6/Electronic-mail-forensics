@@ -20,8 +20,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # --- Database ---
-    database_url: str = "sqlite+aiosqlite:///./email_forensics.db"
+    # --- Core Settings ---
+    # database_url: str = "sqlite+aiosqlite:///data.db"
+    database_url: str = "postgresql+asyncpg://postgres:AppiSagar%40789@db.jbwksprxtnpbqiuilsml.supabase.co:5432/postgres"
 
     # --- Neo4j (Optional) ---
     neo4j_uri: str = "bolt://localhost:7687"
