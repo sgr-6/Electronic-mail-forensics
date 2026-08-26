@@ -167,7 +167,7 @@ async def analyze_email(
             nlp_details_json=json.dumps(nlp_results, default=str),
         )
         session.add(case)
-        session.flush()  # To get case.id for graph and relationships
+        await session.flush()  # To get case.id for graph and relationships
 
         # --- Step 11: Add to Graph Engine ---
         graph_engine.add_email_case({
@@ -211,9 +211,7 @@ async def analyze_email(
                 filename=att_data["filename"],
                 content_type=att_data.get("content_type"),
                 size=att_data["size"],
-                hash_md5=att_data["hashes"]["md5"],
-                hash_sha1=att_data["hashes"]["sha1"],
-                hash_sha256=att_data["hashes"]["sha256"],
+                sha256=att_data["sha256"],
             )
             session.add(att_record)
 
@@ -222,8 +220,8 @@ async def analyze_email(
             url_record = ExtractedURL(
                 case_id=case.id,
                 url=url_data["url"],
-                domain=url_data["defanged"].split("/")[0] if "://" not in url_data["defanged"] else url_data["defanged"].split("://")[1].split("/")[0],
-                is_defanged=True,
+                defanged=url_data["defanged"],
+                anchor_text=url_data.get("anchor_text"),
                 is_suspicious=url_data.get("is_suspicious", False),
                 suspicion_reason=url_data.get("suspicion_reason"),
             )
@@ -277,13 +275,23 @@ async def list_cases(
 
 
 # ========================================================================= #
-# GET /api/cases/{case_id} — Full case detail                               #
+# GET /api/graph — Full Campaign Attribution Graph                          #
+# ========================================================================= #
+
+@router.get("/graph")
+async def get_campaign_graph():
+    """Return the full NetworkX attribution graph for Cytoscape visualization."""
+    from app.services.graph_engine import graph_engine
+    return graph_engine.get_full_graph()
+
+# ========================================================================= #
+# GET /api/cases/{case_id}/report — Download PDF                            #
 # ========================================================================= #
 
 from fastapi.responses import Response
 
-@router.get("/api/cases/{case_id}/report")
-async def download_case_report(case_id: int, session: AsyncSession = Depends(get_session)):
+@router.get("/cases/{case_id}/report")
+async def download_case_report(case_id: str, session: AsyncSession = Depends(get_session)):
     """Download a forensic PDF report for a case."""
     # Fetch case data
     result = await session.execute(select(EmailCase).where(EmailCase.id == case_id))

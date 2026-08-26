@@ -163,7 +163,7 @@ class ReportGenerator:
                     (att.filename[:20] + "..") if len(att.filename) > 20 else att.filename,
                     (att.content_type[:15] + "..") if att.content_type and len(att.content_type) > 15 else str(att.content_type),
                     str(att.size),
-                    Paragraph(att.hash_sha256 or "", self.code_style)
+                    Paragraph(att.sha256 or "", self.code_style)
                 ])
                 
             t_atts = Table(att_data, colWidths=[120, 80, 70, 250])
@@ -185,7 +185,7 @@ class ReportGenerator:
         if urls:
             url_data = [["Defanged URL", "Suspicious", "Reason"]]
             for u in urls:
-                domain = u.domain or ""
+                domain = u.defanged or ""
                 url_data.append([
                     Paragraph((domain[:30] + "..") if len(domain) > 30 else domain, self.code_style),
                     "Yes" if u.is_suspicious else "No",

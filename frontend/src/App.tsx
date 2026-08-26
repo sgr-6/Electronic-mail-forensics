@@ -1,48 +1,61 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import { Shield, LayoutDashboard, Share2, FileText } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CaseDetail from './pages/CaseDetail';
+import CampaignGraph from './pages/CampaignGraph';
+import Reports from './pages/Reports';
 
 function App() {
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white flex flex-col">
-        <div className="p-4 flex items-center gap-3 border-b border-gray-800">
-          <Shield className="text-blue-500 w-8 h-8" />
-          <h1 className="font-bold text-lg tracking-tight">AI Forensics</h1>
-        </div>
-        
-        <nav className="flex-1 p-4 space-y-2">
-          <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-800 text-gray-200 hover:bg-gray-700 hover:text-white transition-colors">
-            <LayoutDashboard className="w-5 h-5" />
-            Dashboard
-          </Link>
-          <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
-            <Share2 className="w-5 h-5" />
-            Campaign Graph
-          </a>
-          <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
-            <FileText className="w-5 h-5" />
-            Reports
-          </a>
-        </nav>
-      </aside>
+      <div className="flex h-screen bg-gray-50 text-gray-900 font-sans">
+        {/* Sidebar */}
+        <aside className="w-64 bg-gray-900 text-white flex flex-col">
+          <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+            <Shield className="w-8 h-8 text-blue-500" />
+            <span className="text-xl font-bold tracking-tight">AI Forensics</span>
+          </div>
+          
+          <nav className="flex-1 p-4 space-y-2">
+            <NavLink 
+              to="/" 
+              className={({isActive}) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              Dashboard
+            </NavLink>
+            <NavLink 
+              to="/graph" 
+              className={({isActive}) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
+            >
+              <Share2 className="w-5 h-5" />
+              Campaign Graph
+            </NavLink>
+            <NavLink 
+              to="/reports" 
+              className={({isActive}) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
+            >
+              <FileText className="w-5 h-5" />
+              Reports
+            </NavLink>
+          </nav>
+        </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-gray-50">
-        <header className="bg-white shadow-sm border-b px-8 py-4">
-          <h2 className="text-xl font-semibold text-gray-800">Email Threat Intelligence Platform</h2>
-        </header>
-        
-        <div className="p-8">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/case/:id" element={<CaseDetail />} />
-          </Routes>
-        </div>
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto bg-gray-50">
+          <header className="bg-white shadow-sm border-b px-8 py-4">
+            <h1 className="text-xl font-semibold text-gray-800">Email Threat Intelligence Platform</h1>
+          </header>
+          
+          <div className="p-8">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/case/:id" element={<CaseDetail />} />
+              <Route path="/graph" element={<CampaignGraph />} />
+              <Route path="/reports" element={<Reports />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
   );
 }
 

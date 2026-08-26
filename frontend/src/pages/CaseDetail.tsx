@@ -37,7 +37,19 @@ export default function CaseDetail() {
   if (loading) return <div className="p-8 text-center text-gray-500">Loading case data...</div>;
   if (!data) return <div className="p-8 text-center text-red-500">Case not found.</div>;
 
-  const { case: email, hops, attachments, urls } = data;
+  const { hops = [], attachments = [], urls = [], ...email } = data;
+
+  let nlpData = null;
+  try {
+    // Check if it's a JSON string, otherwise use the object directly
+    if (email.nlp_details_json) {
+      nlpData = typeof email.nlp_details_json === 'string' 
+        ? JSON.parse(email.nlp_details_json) 
+        : email.nlp_details_json;
+    }
+  } catch (e) {
+    console.error("Failed to parse NLP data", e);
+  }
 
   // Prepare map data
   const mapHops = hops.filter((h: any) => h.latitude && h.longitude);
@@ -99,23 +111,23 @@ export default function CaseDetail() {
 
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 border-b pb-3 mb-4">NLP Threat Analysis</h2>
-            {email.nlp_details_json ? (
+            {nlpData ? (
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <div className="bg-gray-50 p-4 rounded-lg flex-1">
                     <p className="text-sm text-gray-500 mb-1">Classification</p>
-                    <p className="font-semibold text-gray-900">{email.nlp_details_json.classification}</p>
+                    <p className="font-semibold text-gray-900">{nlpData.classification || 'Unknown'}</p>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg flex-1">
                     <p className="text-sm text-gray-500 mb-1">Confidence</p>
-                    <p className="font-semibold text-gray-900">{(email.nlp_details_json.confidence * 100).toFixed(1)}%</p>
+                    <p className="font-semibold text-gray-900">{nlpData.confidence ? (nlpData.confidence * 100).toFixed(1) : 0}%</p>
                   </div>
                 </div>
-                {email.nlp_details_json.indicators?.length > 0 && (
+                {nlpData.indicators && nlpData.indicators.length > 0 && (
                   <div>
                     <p className="text-sm font-medium text-gray-700 mb-2">Triggered Indicators:</p>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-red-600">
-                      {email.nlp_details_json.indicators.map((ind: string, i: number) => (
+                      {nlpData.indicators.map((ind: string, i: number) => (
                         <li key={i}>{ind}</li>
                       ))}
                     </ul>

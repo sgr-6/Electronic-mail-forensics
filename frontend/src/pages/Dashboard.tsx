@@ -105,7 +105,7 @@ export default function Dashboard() {
               <div>
                 <p className="text-sm font-medium text-gray-500">Malicious/Phishing</p>
                 <p className="text-3xl font-bold text-red-600 mt-1">
-                  {stats.by_category['Phishing / BEC Attack'] || 0 + (stats.by_category['Malicious Infrastructure'] || 0)}
+                  {(stats.phishing_count || 0) + (stats.malicious_count || 0)}
                 </p>
               </div>
               <div className="p-2 bg-red-50 rounded-lg"><ShieldAlert className="w-6 h-6 text-red-600" /></div>
@@ -116,7 +116,7 @@ export default function Dashboard() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-medium text-gray-500">Suspicious</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-1">{stats.by_category['Suspicious'] || 0}</p>
+                <p className="text-3xl font-bold text-yellow-600 mt-1">{stats.suspicious_count || 0}</p>
               </div>
               <div className="p-2 bg-yellow-50 rounded-lg"><MailWarning className="w-6 h-6 text-yellow-600" /></div>
             </div>
@@ -126,7 +126,7 @@ export default function Dashboard() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-medium text-gray-500">Clean</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">{stats.by_category['Clean'] || 0}</p>
+                <p className="text-3xl font-bold text-green-600 mt-1">{stats.clean_count || 0}</p>
               </div>
               <div className="p-2 bg-green-50 rounded-lg"><ShieldCheck className="w-6 h-6 text-green-600" /></div>
             </div>
