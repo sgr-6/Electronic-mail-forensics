@@ -71,6 +71,9 @@ def create_app() -> FastAPI:
 
     # --- Mount API routes ---
     app.include_router(api_router)
+    
+    from app.routers.soc_routes import router as soc_router
+    app.include_router(soc_router, prefix="/api")
 
     # --- Health check ---
     @app.get("/health", tags=["system"])
