@@ -85,6 +85,51 @@ class RiskBreakdownSchema(BaseModel):
     threat_type: str | None = None
 
 
+class EvidenceIntegritySchema(BaseModel):
+    """Cryptographic evidence fingerprint schema."""
+    filename: str
+    hash_algorithm: str = "SHA-256"
+    sha256: str
+    sha1: str | None = None
+    md5: str | None = None
+    submitted_at: datetime | str | None = None
+    size: int | None = None
+    status: str = "Hash Generated"
+
+
+class VerificationResponse(BaseModel):
+    """Response returned after verifying evidence file integrity."""
+    case_id: str
+    filename: str
+    hash_algorithm: str = "SHA-256"
+    expected_sha256: str
+    actual_sha256: str
+    verified: bool
+    status: str
+    message: str
+
+
+# =============================================================================
+# Chain of Custody schemas
+# =============================================================================
+
+class CustodyEventSchema(BaseModel):
+    """Single Chain of Custody event."""
+    event_type: str
+    timestamp: datetime
+    actor: str
+    description: str | None = None
+    evidence_sha256: str | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class CustodyHistoryResponse(BaseModel):
+    """Full Chain of Custody history for a case."""
+    case_id: str
+    events: list[CustodyEventSchema] = Field(default_factory=list)
+
+
 # =============================================================================
 # Case response schemas
 # =============================================================================
@@ -118,6 +163,7 @@ class CaseDetail(BaseModel):
     raw_hash_sha1: str
     raw_hash_sha256: str
     raw_size: int
+    evidence: EvidenceIntegritySchema | None = None
 
     # Parsed headers
     subject: str | None = None
@@ -171,6 +217,7 @@ class AnalysisResponse(BaseModel):
     message: str = "Analysis complete"
     risk_score: float | None = None
     risk_category: str | None = None
+    evidence: EvidenceIntegritySchema | None = None
 
 
 class StatsResponse(BaseModel):
@@ -187,3 +234,4 @@ class ErrorResponse(BaseModel):
     """Standard error response."""
     detail: str
     error_code: str | None = None
+

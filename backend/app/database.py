@@ -12,6 +12,10 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.config import settings
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Create async engine with appropriate settings for the backend
 connect_args = {}
 if settings.is_sqlite:
@@ -36,9 +40,21 @@ class Base(DeclarativeBase):
 
 
 async def init_db() -> None:
-    """Create all tables. Called on application startup."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """Create all tables. Called on application startup with SQLite fallback if remote DB is unreachable."""
+    global engine, async_session_factory
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        if not settings.is_sqlite:
+            logger.warning("Remote database connection failed (%s). Falling back to local SQLite database.", e)
+            sqlite_url = "sqlite+aiosqlite:///./data.db"
+            engine = create_async_engine(sqlite_url, echo=settings.app_debug, connect_args={"check_same_thread": False})
+            async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+        else:
+            raise
 
 
 async def get_session() -> AsyncSession:

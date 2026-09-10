@@ -20,14 +20,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_session
-from app.models import Attachment, EmailCase, EmailHop, ExtractedURL
+from app.models import Attachment, EmailCase, EmailHop, ExtractedURL, EvidenceCustodyEvent
 from app.schemas import (
     AnalysisResponse,
     CaseDetail,
     CaseSummary,
+    CustodyEventSchema,
+    CustodyHistoryResponse,
     ErrorResponse,
+    EvidenceIntegritySchema,
     HopSchema,
     StatsResponse,
+    VerificationResponse,
+)
+from app.services.hash_service import hash_service
+from app.services.custody_service import (
+    log_custody_event,
+    EVIDENCE_ACQUIRED,
+    SHA256_FINGERPRINT_CREATED,
+    FORENSIC_ANALYSIS_STARTED,
+    FORENSIC_ANALYSIS_COMPLETED,
+    REPORT_GENERATED,
+    EVIDENCE_INTEGRITY_VERIFIED,
+    EVIDENCE_INTEGRITY_FAILED,
 )
 from app.services.eml_parser import EMLParser
 from app.services.hop_tracer import parse_received_headers, find_originating_ip, get_public_ips
@@ -218,6 +233,23 @@ async def analyze_email(
         session.add(case)
         await session.flush()  # To get case.id for graph and relationships
 
+        # --- Step 10b: Chain of Custody — Evidence Acquired + SHA-256 Fingerprint ---
+        # Only logged AFTER case + SHA-256 are confirmed in DB
+        await log_custody_event(
+            session, case.id, EVIDENCE_ACQUIRED,
+            description=f"Evidence file '{case.filename}' acquired ({case.raw_size} bytes)",
+            evidence_sha256=case.raw_hash_sha256,
+        )
+        await log_custody_event(
+            session, case.id, SHA256_FINGERPRINT_CREATED,
+            description="SHA-256 evidence fingerprint recorded from original file bytes",
+            evidence_sha256=case.raw_hash_sha256,
+        )
+        await log_custody_event(
+            session, case.id, FORENSIC_ANALYSIS_STARTED,
+            description="Automated forensic analysis pipeline initiated",
+        )
+
         # --- Step 11: Add to Graph Engine ---
         graph_engine.add_email_case({
             "case_id": case.id,
@@ -279,7 +311,26 @@ async def analyze_email(
         await session.commit()
         await session.refresh(case)
 
+        # --- Chain of Custody: Analysis Completed ---
+        await log_custody_event(
+            session, case.id, FORENSIC_ANALYSIS_COMPLETED,
+            description="Forensic analysis pipeline completed successfully",
+        )
+        await session.commit()
+
         logger.info("Analysis complete for case %s (%s)", case.id, case.filename)
+
+        evidence_data = hash_service.calculate_evidence_hashes(raw_bytes, case.filename)
+        evidence_schema = EvidenceIntegritySchema(
+            filename=evidence_data["filename"],
+            hash_algorithm=evidence_data["hash_algorithm"],
+            sha256=evidence_data["sha256"],
+            sha1=evidence_data["sha1"],
+            md5=evidence_data["md5"],
+            submitted_at=case.submitted_at,
+            size=evidence_data["size"],
+            status=evidence_data["status"],
+        )
 
         return AnalysisResponse(
             case_id=case.id,
@@ -287,6 +338,7 @@ async def analyze_email(
             message=f"Analysis complete for {case.filename}",
             risk_score=case.risk_score,
             risk_category=case.risk_category,
+            evidence=evidence_schema,
         )
 
     except HTTPException:
@@ -353,10 +405,22 @@ async def download_case_report(case_id: str, session: AsyncSession = Depends(get
     hops = (await session.execute(select(EmailHop).where(EmailHop.case_id == case_id).order_by(EmailHop.sequence))).scalars().all()
     attachments = (await session.execute(select(Attachment).where(Attachment.case_id == case_id))).scalars().all()
     urls = (await session.execute(select(ExtractedURL).where(ExtractedURL.case_id == case_id))).scalars().all()
+    custody_events = (await session.execute(
+        select(EvidenceCustodyEvent)
+        .where(EvidenceCustodyEvent.case_id == case_id)
+        .order_by(EvidenceCustodyEvent.timestamp)
+    )).scalars().all()
 
-    # Generate PDF
+    # Generate PDF (with custody history)
     from app.services.report_generator import report_generator
-    pdf_bytes = report_generator.generate_pdf(case, list(hops), list(attachments), list(urls))
+    pdf_bytes = report_generator.generate_pdf(case, list(hops), list(attachments), list(urls), list(custody_events))
+
+    # --- Chain of Custody: Report Generated ---
+    await log_custody_event(
+        session, case_id, REPORT_GENERATED,
+        description="Forensic PDF report generated and downloaded",
+    )
+    await session.commit()
 
     return Response(
         content=pdf_bytes,
@@ -414,6 +478,17 @@ async def get_case(
         except json.JSONDecodeError:
             pass
 
+    evidence_schema = EvidenceIntegritySchema(
+        filename=case.filename,
+        hash_algorithm="SHA-256",
+        sha256=case.raw_hash_sha256,
+        sha1=case.raw_hash_sha1,
+        md5=case.raw_hash_md5,
+        submitted_at=case.submitted_at,
+        size=case.raw_size,
+        status="Hash Generated",
+    )
+
     return CaseDetail(
         id=case.id,
         filename=case.filename,
@@ -422,6 +497,7 @@ async def get_case(
         raw_hash_sha1=case.raw_hash_sha1,
         raw_hash_sha256=case.raw_hash_sha256,
         raw_size=case.raw_size,
+        evidence=evidence_schema,
         subject=case.subject,
         from_address=case.from_address,
         from_display=case.from_display,
@@ -457,6 +533,109 @@ async def get_case(
         risk_score=case.risk_score,
         risk_category=case.risk_category,
         threat_type=case.threat_type,
+    )
+
+
+# ========================================================================= #
+# POST /api/cases/{case_id}/verify — Verify Evidence Integrity              #
+# ========================================================================= #
+
+@router.post(
+    "/cases/{case_id}/verify",
+    response_model=VerificationResponse,
+    responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}},
+    summary="Verify evidence file integrity against stored SHA-256 fingerprint",
+)
+async def verify_case_evidence(
+    case_id: str,
+    file: UploadFile = File(..., description="Uploaded evidence file to verify"),
+    session: AsyncSession = Depends(get_session),
+) -> VerificationResponse:
+    """
+    Verify an uploaded file against the original stored SHA-256 evidence fingerprint.
+    Calculates a fresh SHA-256 directly from raw file bytes without modifying database.
+    """
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No filename provided for verification")
+
+    raw_bytes = await file.read()
+    if not raw_bytes:
+        raise HTTPException(status_code=400, detail="Empty file uploaded for verification")
+
+    result = await session.execute(select(EmailCase).where(EmailCase.id == case_id))
+    case = result.scalar_one_or_none()
+
+    if not case:
+        raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
+
+    verification = hash_service.verify_evidence_integrity(raw_bytes, case.raw_hash_sha256)
+
+    # --- Chain of Custody: Record verification outcome ---
+    if verification["verified"]:
+        await log_custody_event(
+            session, case_id, EVIDENCE_INTEGRITY_VERIFIED,
+            description="Evidence file matches stored SHA-256 fingerprint",
+            evidence_sha256=case.raw_hash_sha256,
+        )
+    else:
+        await log_custody_event(
+            session, case_id, EVIDENCE_INTEGRITY_FAILED,
+            description=(
+                f"Evidence integrity check FAILED. "
+                f"Expected: {verification['expected_sha256'][:16]}... "
+                f"Actual: {verification['actual_sha256'][:16]}..."
+            ),
+            evidence_sha256=case.raw_hash_sha256,  # Original hash preserved
+        )
+    await session.commit()
+
+    return VerificationResponse(
+        case_id=case.id,
+        filename=case.filename,
+        hash_algorithm=verification["hash_algorithm"],
+        expected_sha256=verification["expected_sha256"],
+        actual_sha256=verification["actual_sha256"],
+        verified=verification["verified"],
+        status=verification["status"],
+        message=verification["message"],
+    )
+
+
+# ========================================================================= #
+# GET /api/cases/{case_id}/custody — Chain of Custody History               #
+# ========================================================================= #
+
+@router.get(
+    "/cases/{case_id}/custody",
+    response_model=CustodyHistoryResponse,
+    responses={404: {"model": ErrorResponse}},
+    summary="Get Chain of Custody history for a case",
+)
+async def get_custody_history(
+    case_id: str,
+    session: AsyncSession = Depends(get_session),
+) -> CustodyHistoryResponse:
+    """
+    Return the chronological, append-only Chain of Custody event history
+    for a specific email evidence case. Events are ordered by timestamp.
+    """
+    # Verify case exists
+    case_result = await session.execute(select(EmailCase).where(EmailCase.id == case_id))
+    if not case_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
+
+    # Fetch custody events in chronological order
+    stmt = (
+        select(EvidenceCustodyEvent)
+        .where(EvidenceCustodyEvent.case_id == case_id)
+        .order_by(EvidenceCustodyEvent.timestamp)
+    )
+    result = await session.execute(stmt)
+    events = result.scalars().all()
+
+    return CustodyHistoryResponse(
+        case_id=case_id,
+        events=[CustodyEventSchema.model_validate(e) for e in events],
     )
 
 

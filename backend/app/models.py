@@ -6,6 +6,7 @@ Models:
     - EmailHop: Individual SMTP relay hop with geolocation data
     - Attachment: Email attachment metadata with SHA-256 hash
     - ExtractedURL: URLs extracted from email body
+    - EvidenceCustodyEvent: Append-only Chain of Custody event log
 """
 
 from __future__ import annotations
@@ -78,6 +79,7 @@ class EmailCase(Base):
     hops = relationship("EmailHop", back_populates="case", cascade="all, delete-orphan", order_by="EmailHop.sequence")
     attachments = relationship("Attachment", back_populates="case", cascade="all, delete-orphan")
     urls = relationship("ExtractedURL", back_populates="case", cascade="all, delete-orphan")
+    custody_events = relationship("EvidenceCustodyEvent", back_populates="case", cascade="all, delete-orphan", order_by="EvidenceCustodyEvent.timestamp")
 
     def __repr__(self) -> str:
         return f"<EmailCase id={self.id} subject='{self.subject}' risk={self.risk_score}>"
@@ -158,3 +160,29 @@ class ExtractedURL(Base):
 
     def __repr__(self) -> str:
         return f"<ExtractedURL url='{self.url[:50]}' suspicious={self.is_suspicious}>"
+
+
+class EvidenceCustodyEvent(Base):
+    """
+    Append-only Chain of Custody event for evidence lifecycle tracking.
+
+    Records important evidence-handling events (acquisition, analysis,
+    report generation, integrity verification) in chronological order.
+    Designed for future integration with a permissioned blockchain ledger.
+    """
+
+    __tablename__ = "evidence_custody_events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    case_id = Column(String(36), ForeignKey("email_cases.id", ondelete="CASCADE"), nullable=False)
+    event_type = Column(String(50), nullable=False)
+    timestamp = Column(DateTime, default=_utc_now, nullable=False)
+    actor = Column(String(100), nullable=False, default="System")
+    description = Column(Text, nullable=True)
+    evidence_sha256 = Column(String(64), nullable=True)
+
+    # --- Relationship ---
+    case = relationship("EmailCase", back_populates="custody_events")
+
+    def __repr__(self) -> str:
+        return f"<EvidenceCustodyEvent case={self.case_id} event='{self.event_type}' at={self.timestamp}>"

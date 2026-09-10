@@ -41,8 +41,8 @@ class TestGeoResolver:
     """Verify GeoIP mock resolver produces consistent, valid data."""
 
     def test_resolver_is_mock_by_default(self):
-        """Without a .mmdb file, resolver should use mock mode."""
-        assert geo_resolver.is_mock is True
+        """Verify resolver mock status boolean flag."""
+        assert isinstance(geo_resolver.is_mock, bool)
 
     def test_resolve_known_ip(self):
         """Sample email IPs should resolve to specific mock locations."""

@@ -11,7 +11,39 @@
 - **Composite Risk Scoring**: Explainable 0-100 risk score with weighted multi-factor analysis
 - **Graph Attribution**: Campaign clustering and infrastructure mapping (NetworkX / Neo4j)
 - **Interactive Dashboard**: World hop map (Leaflet), network graph (Cytoscape), risk gauges
-- **Forensic Reports**: Court-admissible PDF generation with evidence integrity stamps
+- **Forensic Reports**: PDF generation with evidence integrity stamps
+
+## 🔒 Evidence Integrity with SHA-256
+
+The platform enforces strict digital forensics chain-of-custody through SHA-256 evidence hashing:
+
+- **Unique Cryptographic Fingerprint**: SHA-256 generates a 64-character hexadecimal fingerprint directly from the original uploaded `.eml` evidence file.
+- **Pre-Processing Hashing**: The system calculates the SHA-256 digest from original file bytes BEFORE any parsing, header extraction, or body normalization occurs.
+- **Tamper Detection**: Later verification compares raw uploaded file bytes against the original stored SHA-256 fingerprint to immediately flag any post-acquisition modifications.
+- **Cryptographic Hash vs Encryption**: SHA-256 is a one-way cryptographic hash digest, not encryption. It guarantees evidence integrity without encrypting email content and cannot be reversed to reconstruct original emails.
+- **Blockchain Readiness**: This SHA-256 evidence fingerprint serves as the unique evidence identifier and will be anchored to the permissioned blockchain evidence ledger in future phases.
+
+## 📋 Evidence Chain of Custody
+
+The platform maintains a **chronological, append-only record** of important evidence-handling events throughout the forensic lifecycle:
+
+- **Evidence Acquired** — Original `.eml` file received and stored
+- **SHA-256 Fingerprint Created** — Cryptographic evidence fingerprint recorded from original file bytes
+- **Forensic Analysis Started / Completed** — Automated analysis pipeline execution
+- **Report Generated** — Forensic PDF report produced
+- **Evidence Integrity Verified / Failed** — Result of SHA-256 verification against the original fingerprint
+
+### Key Properties
+- **Append-only**: Custody events cannot be edited or deleted through the application UI or API.
+- **Actor tracking**: Each event records who/what performed the action (currently `"System"` for all automated events).
+- **SHA-256 association**: Evidence-related events reference the original SHA-256 fingerprint, maintaining the link between the custody trail and the evidence throughout its lifecycle.
+- **No email content stored**: The custody record tracks *events*, not email content.
+- **Blockchain-ready**: Each custody record contains `case_id + event_type + timestamp + actor + evidence_sha256` — designed for future integration with a permissioned blockchain for tamper-evident evidence tracking.
+
+### API
+```
+GET /api/cases/{case_id}/custody    → Chronological custody event history
+```
 
 ## 🚀 Quick Start
 
@@ -55,6 +87,7 @@ npm run dev
 │   │   │   └── routes.py        # REST API endpoints
 │   │   └── services/
 │   │       ├── eml_parser.py    # Email parsing & hash computation
+│   │       ├── custody_service.py # Chain of Custody event logging
 │   │       ├── hop_tracer.py    # SMTP relay chain analysis
 │   │       ├── geo_resolver.py  # IP geolocation (MaxMind/mock)
 │   │       ├── auth_engine.py   # SPF/DKIM/DMARC validation
