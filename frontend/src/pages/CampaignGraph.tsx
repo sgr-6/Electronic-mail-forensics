@@ -10,6 +10,7 @@ export default function CampaignGraph() {
   const [elements, setElements] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [latestCaseId, setLatestCaseId] = useState<string | null>(null);
+  const [legendOpen, setLegendOpen] = useState(false);
   const cyRef = useRef<any>(null);
 
   useEffect(() => {
@@ -184,14 +185,14 @@ export default function CampaignGraph() {
   ];
 
   return (
-    <div className="space-y-6 h-[calc(100vh-8rem)] flex flex-col">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 h-[calc(100vh-12rem)] sm:h-[calc(100vh-8rem)] flex flex-col">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Share2 className="w-6 h-6 text-blue-600" />
             Campaign Graph
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-500 mt-1 text-sm">
             Visualizes relationships between emails, infrastructure (IPs, domains), and threat campaigns.
           </p>
         </div>
@@ -199,7 +200,7 @@ export default function CampaignGraph() {
         {latestCaseId && (
           <button 
             onClick={focusLatestCase}
-            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto justify-center"
           >
             <Crosshair className="w-5 h-5" />
             Focus Recent Investigation
@@ -209,8 +210,8 @@ export default function CampaignGraph() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex-1 overflow-hidden relative">
         
-        {/* Legend */}
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur border border-gray-200 p-3 rounded-lg shadow-sm z-10 text-xs">
+        {/* Legend - Desktop */}
+        <div className="hidden md:block absolute top-4 left-4 bg-white/90 backdrop-blur border border-gray-200 p-3 rounded-lg shadow-sm z-10 text-xs">
           <h3 className="font-semibold text-gray-700 mb-2">Legend</h3>
           <div className="space-y-2">
             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-500 rounded-sm"></div><span>Email</span></div>
@@ -221,6 +222,26 @@ export default function CampaignGraph() {
             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-indigo-500 clip-hexagon"></div><span>Cipher</span></div>
             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-pink-500 rounded-full"></div><span>Campaign</span></div>
           </div>
+        </div>
+
+        {/* Legend - Mobile toggle */}
+        <div className="md:hidden absolute top-2 left-2 z-10">
+          <button onClick={() => setLegendOpen(!legendOpen)} className="bg-white/90 backdrop-blur border border-gray-200 px-2.5 py-1.5 rounded-lg shadow-sm text-xs font-semibold text-gray-700">
+            {legendOpen ? '✕ Close' : '☰ Legend'}
+          </button>
+          {legendOpen && (
+            <div className="mt-1 bg-white/95 backdrop-blur border border-gray-200 p-3 rounded-lg shadow-sm text-xs">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-500 rounded-sm"></div><span>Email</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-red-500 rotate-45 transform"></div><span>IP Address</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 clip-hexagon"></div><span>Domain</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-purple-500 rounded-md"></div><span>ASN</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500" style={{clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)'}}></div><span>Mailer</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-indigo-500 clip-hexagon"></div><span>Cipher</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-pink-500 rounded-full"></div><span>Campaign</span></div>
+              </div>
+            </div>
+          )}
         </div>
 
         {loading ? (

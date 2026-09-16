@@ -100,14 +100,14 @@ export default function CaseDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
         <div>
           <Link to="/" className="flex items-center text-gray-500 hover:text-gray-900 mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Link>
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold text-gray-900">Case #{email.id}</h1>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Case #{email.id}</h1>
             <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
               email.risk_score > 75 ? 'bg-red-100 text-red-800' : 
               email.risk_score > 40 ? 'bg-yellow-100 text-yellow-800' : 
@@ -117,10 +117,10 @@ export default function CaseDetail() {
             </span>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full lg:w-auto">
           <Link
             to={`/case/${id}/soc`}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto justify-center text-center"
           >
             <AlertTriangle className="w-5 h-5" />
             SOC Active Response
@@ -128,7 +128,7 @@ export default function CaseDetail() {
           <a 
             href={`${API_URL}/cases/${id}/report`}
             target="_blank"
-            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto justify-center text-center"
           >
             <Download className="w-5 h-5" />
             Export PDF Report
@@ -141,7 +141,7 @@ export default function CaseDetail() {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Evidence Integrity Card */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100 bg-gradient-to-r from-blue-50/30 to-indigo-50/20">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-blue-100 bg-gradient-to-r from-blue-50/30 to-indigo-50/20">
             <div className="flex justify-between items-center border-b pb-3 mb-4">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-blue-600" /> Evidence Integrity
@@ -188,12 +188,12 @@ export default function CaseDetail() {
 
               {/* Integrity Verification Interactive Widget */}
               <div className="pt-3 border-t border-gray-200">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900">Verify File Integrity</h3>
                     <p className="text-xs text-gray-500">Upload an .eml file to compare against stored SHA-256 fingerprint</p>
                   </div>
-                  <label className="cursor-pointer inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors shadow-xs">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors shadow-xs w-full sm:w-auto justify-center text-center">
                     <Upload className="w-3.5 h-3.5" />
                     {verifying ? 'Calculating SHA-256...' : 'Upload File to Compare'}
                     <input type="file" onChange={handleVerifyFile} disabled={verifying} className="hidden" />
@@ -241,7 +241,7 @@ export default function CaseDetail() {
 
           {/* Evidence Chain of Custody Timeline */}
           {custodyEvents.length > 0 && (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 border-b pb-3 mb-4">
                 <Clock className="w-5 h-5 text-indigo-600" /> Evidence Chain of Custody
               </h2>
@@ -292,31 +292,31 @@ export default function CaseDetail() {
             </div>
           )}
 
-         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 border-b pb-3 mb-4">Email Metadata</h2>
-            <div className="grid grid-cols-6 gap-4 text-sm">
-              <div className="col-span-1 font-medium text-gray-500">Subject</div>
-              <div className="col-span-5 text-gray-900 font-medium">{email.subject}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:gap-4 text-sm">
+              <div className="sm:col-span-1 font-medium text-gray-500">Subject</div>
+              <div className="sm:col-span-5 text-gray-900 font-medium">{email.subject}</div>
               
-              <div className="col-span-1 font-medium text-gray-500">From</div>
-              <div className="col-span-5 text-gray-900">{email.from_display} &lt;{email.from_address}&gt;</div>
+              <div className="sm:col-span-1 font-medium text-gray-500">From</div>
+              <div className="sm:col-span-5 text-gray-900">{email.from_display} &lt;{email.from_address}&gt;</div>
               
-              <div className="col-span-1 font-medium text-gray-500">To</div>
-              <div className="col-span-5 text-gray-900">{email.to_address}</div>
+              <div className="sm:col-span-1 font-medium text-gray-500">To</div>
+              <div className="sm:col-span-5 text-gray-900">{email.to_address}</div>
               
-              <div className="col-span-1 font-medium text-gray-500">Date</div>
-              <div className="col-span-5 text-gray-900">{email.date_header}</div>
+              <div className="sm:col-span-1 font-medium text-gray-500">Date</div>
+              <div className="sm:col-span-5 text-gray-900">{email.date_header}</div>
               
-              <div className="col-span-1 font-medium text-gray-500">Message-ID</div>
-              <div className="col-span-5 text-gray-600 break-all">{email.message_id}</div>
+              <div className="sm:col-span-1 font-medium text-gray-500">Message-ID</div>
+              <div className="sm:col-span-5 text-gray-600 break-all">{email.message_id}</div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 border-b pb-3 mb-4">NLP Threat Analysis</h2>
             {nlpData ? (
               <div className="space-y-4">
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <div className="bg-gray-50 p-4 rounded-lg flex-1">
                     <p className="text-sm text-gray-500 mb-1">Classification</p>
                     <p className="font-semibold text-gray-900">{nlpData.classification || 'Unknown'}</p>
@@ -342,9 +342,9 @@ export default function CaseDetail() {
             )}
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 border-b pb-3 mb-4">Authentication Results</h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <AuthCard name="SPF" result={email.spf_result} />
               <AuthCard name="DKIM" result={email.dkim_result} />
               <AuthCard name="DMARC" result={email.dmarc_result} />
@@ -356,7 +356,7 @@ export default function CaseDetail() {
         {/* Right Column: Entities (URLs, Attachments) */}
         <div className="space-y-6">
           
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
               <LinkIcon className="w-5 h-5 text-gray-500" /> Extracted URLs ({urls.length})
             </h2>
@@ -375,7 +375,7 @@ export default function CaseDetail() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
               <FileText className="w-5 h-5 text-gray-500" /> Attachments ({attachments.length})
             </h2>
@@ -399,12 +399,12 @@ export default function CaseDetail() {
       </div>
 
       {/* Map Section */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
           <Map className="w-5 h-5 text-gray-500" /> Hop-by-Hop Trace
         </h2>
         
-        <div className="h-96 w-full rounded-lg border border-gray-200 overflow-hidden mb-6 z-0">
+        <div className="h-64 sm:h-96 w-full rounded-lg border border-gray-200 overflow-hidden mb-6 z-0">
           {positions.length > 0 ? (
             <MapContainer center={positions[0]} zoom={2} className="h-full w-full">
               <TileLayer

@@ -121,13 +121,13 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Top Bar: Upload & Stats */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h1 className="text-2xl font-bold text-gray-900">Platform Overview</h1>
         
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button 
             onClick={() => setShowImapModal(true)}
-            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto justify-center"
           >
             <Mail className="w-5 h-5" />
             Fetch from Gmail
@@ -144,7 +144,7 @@ export default function Dashboard() {
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 w-full sm:w-auto justify-center"
           >
             <UploadCloud className="w-5 h-5" />
             {uploading ? 'Analyzing...' : 'Upload .EML(s)'}
@@ -157,7 +157,7 @@ export default function Dashboard() {
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
-        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+        className={`border-2 border-dashed rounded-xl p-4 sm:p-8 text-center transition-colors ${
           isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
         }`}
       >
@@ -183,22 +183,22 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Analyzed</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total_cases}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.total_cases}</p>
               </div>
               <div className="p-2 bg-blue-50 rounded-lg"><MailWarning className="w-6 h-6 text-blue-600" /></div>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-medium text-gray-500">Malicious/Phishing</p>
-                <p className="text-3xl font-bold text-red-600 mt-1">
+                <p className="text-2xl sm:text-3xl font-bold text-red-600 mt-1">
                   {(stats.phishing_count || 0) + (stats.malicious_count || 0)}
                 </p>
               </div>
@@ -206,21 +206,21 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-medium text-gray-500">Suspicious</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-1">{stats.suspicious_count || 0}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-yellow-600 mt-1">{stats.suspicious_count || 0}</p>
               </div>
               <div className="p-2 bg-yellow-50 rounded-lg"><MailWarning className="w-6 h-6 text-yellow-600" /></div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-medium text-gray-500">Clean</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">{stats.clean_count || 0}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">{stats.clean_count || 0}</p>
               </div>
               <div className="p-2 bg-green-50 rounded-lg"><ShieldCheck className="w-6 h-6 text-green-600" /></div>
             </div>
@@ -233,62 +233,89 @@ export default function Dashboard() {
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">Recent Analyses</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-              <tr>
-                <th className="px-6 py-3">ID</th>
-                <th className="px-6 py-3">Subject</th>
-                <th className="px-6 py-3">Sender</th>
-                <th className="px-6 py-3">Risk Score</th>
-                <th className="px-6 py-3">Category</th>
-                <th className="px-6 py-3">Threat Type</th>
-                <th className="px-6 py-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cases.length === 0 ? (
+        
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {cases.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">No emails analyzed yet. Upload an .EML file to begin.</div>
+          ) : cases.map((c) => (
+            <Link to={`/case/${c.id}`} key={c.id} className="block p-4 hover:bg-gray-50">
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-medium text-gray-900 text-sm truncate flex-1 mr-2">{c.subject}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getCategoryColor(c.risk_category)}`}>{c.risk_category}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span className="truncate mr-2">{c.from_address}</span>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="w-12 bg-gray-200 rounded-full h-1.5">
+                    <div className={`h-1.5 rounded-full ${c.risk_score > 75 ? 'bg-red-600' : c.risk_score > 40 ? 'bg-yellow-400' : 'bg-green-500'}`} style={{ width: `${c.risk_score}%` }}></div>
+                  </div>
+                  <span className="font-medium text-gray-700">{c.risk_score}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:block">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-gray-500">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                    No emails analyzed yet. Upload an .EML file to begin.
-                  </td>
+                  <th className="px-6 py-3">ID</th>
+                  <th className="px-6 py-3">Subject</th>
+                  <th className="px-6 py-3">Sender</th>
+                  <th className="px-6 py-3">Risk Score</th>
+                  <th className="px-6 py-3">Category</th>
+                  <th className="px-6 py-3">Threat Type</th>
+                  <th className="px-6 py-3">Action</th>
                 </tr>
-              ) : cases.map((c) => (
-                <tr key={c.id} className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">#{c.id}</td>
-                  <td className="px-6 py-4 truncate max-w-xs">{c.subject}</td>
-                  <td className="px-6 py-4 truncate max-w-xs">{c.from_address}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-[60px]">
-                        <div 
-                          className={`h-2.5 rounded-full ${c.risk_score > 75 ? 'bg-red-600' : c.risk_score > 40 ? 'bg-yellow-400' : 'bg-green-500'}`}
-                          style={{ width: `${c.risk_score}%` }}
-                        ></div>
+              </thead>
+              <tbody>
+                {cases.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                      No emails analyzed yet. Upload an .EML file to begin.
+                    </td>
+                  </tr>
+                ) : cases.map((c) => (
+                  <tr key={c.id} className="bg-white border-b hover:bg-gray-50">
+                    <td className="px-6 py-4 font-medium text-gray-900">#{c.id}</td>
+                    <td className="px-6 py-4 truncate max-w-xs">{c.subject}</td>
+                    <td className="px-6 py-4 truncate max-w-xs">{c.from_address}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-[60px]">
+                          <div 
+                            className={`h-2.5 rounded-full ${c.risk_score > 75 ? 'bg-red-600' : c.risk_score > 40 ? 'bg-yellow-400' : 'bg-green-500'}`}
+                            style={{ width: `${c.risk_score}%` }}
+                          ></div>
+                        </div>
+                        <span className="font-medium text-gray-700">{c.risk_score}</span>
                       </div>
-                      <span className="font-medium text-gray-700">{c.risk_score}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getCategoryColor(c.risk_category)}`}>
-                      {c.risk_category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{c.threat_type || '-'}</td>
-                  <td className="px-6 py-4">
-                    <Link to={`/case/${c.id}`} className="text-blue-600 hover:underline font-medium">View Report</Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getCategoryColor(c.risk_category)}`}>
+                        {c.risk_category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">{c.threat_type || '-'}</td>
+                    <td className="px-6 py-4">
+                      <Link to={`/case/${c.id}`} className="text-blue-600 hover:underline font-medium">View Report</Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       {/* IMAP Modal */}
       {showImapModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-xl w-full max-w-md mx-4">
             <h2 className="text-xl font-bold mb-4">Fetch Emails from Gmail (IMAP)</h2>
             <p className="text-sm text-gray-600 mb-4">
               Enter your Gmail address and an <a href="https://support.google.com/accounts/answer/185833" target="_blank" rel="noreferrer" className="text-blue-600 underline">App Password</a> (not your normal password).

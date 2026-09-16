@@ -42,7 +42,35 @@ export default function Reports() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
+        
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {loading ? (
+            <div className="px-4 py-8 text-center text-gray-500">Loading reports...</div>
+          ) : cases.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">No reports available.</div>
+          ) : cases.map((c) => (
+            <div key={c.id} className="p-4">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">{c.subject || 'No Subject'}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">#{c.id.substring(0, 8)}... · {format(new Date(c.submitted_at), 'MMM d, yyyy')}</p>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${
+                  c.risk_category === 'Clean' ? 'bg-green-100 text-green-700' :
+                  c.risk_category === 'Suspicious' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-red-100 text-red-700'
+                }`}>{c.risk_category}</span>
+              </div>
+              <button onClick={() => handleDownload(c.id)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium mt-1">
+                <Download className="w-4 h-4" /> Download PDF
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
@@ -71,7 +99,7 @@ export default function Reports() {
                     <td className="py-4 px-6 text-sm text-gray-500">
                       {format(new Date(c.submitted_at), 'MMM d, yyyy HH:mm')}
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-900 truncate max-w-xs">
+                    <td className="py-4 px-6 text-sm text-gray-900 truncate max-w-[250px] lg:max-w-xs">
                       {c.subject || 'No Subject'}
                     </td>
                     <td className="py-4 px-6 text-sm font-medium">

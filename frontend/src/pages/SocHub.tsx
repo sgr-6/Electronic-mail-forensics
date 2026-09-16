@@ -34,7 +34,7 @@ export default function SocHub() {
   }, [id]);
 
   if (loading) {
-    return <div className="flex h-[50vh] items-center justify-center text-gray-500">Executing Deep SOC Analysis...</div>;
+    return <div className="flex h-[40vh] sm:h-[50vh] items-center justify-center text-gray-500">Executing Deep SOC Analysis...</div>;
   }
 
   if (!data) {
@@ -45,7 +45,7 @@ export default function SocHub() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Terminal className="w-6 h-6 text-red-600" />
@@ -53,38 +53,38 @@ export default function SocHub() {
           </h1>
           <p className="text-gray-500 mt-1">Deep threat extraction and active defense actions for Case #{id}</p>
         </div>
-        <Link to={`/case/${id}`} className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+        <Link to={`/case/${id}`} className="w-full sm:w-auto text-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors flex items-center">
           &larr; Back to Case
         </Link>
       </div>
 
       {/* Action Bar */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap gap-4">
+      <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4">
         <a 
           href={`${API_URL}/soc/bsa-certificate/${id}`} 
           target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+          className="flex justify-center text-center items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
         >
           <FileKey className="w-4 h-4" /> BSA Sec 63 PDF
         </a>
         <a 
           href={`${API_URL}/soc/i4c-docket/${id}`} 
           target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          className="flex justify-center text-center items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
         >
           <DownloadCloud className="w-4 h-4" /> Export I4C Docket
         </a>
         <a 
           href={`${API_URL}/soc/takedown-notice/${id}`} 
           target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+          className="flex justify-center text-center items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
         >
           <AlertTriangle className="w-4 h-4" /> Takedown Notice
         </a>
         <a 
           href={`${API_URL}/soc/rules/${id}`} 
           target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+          className="flex justify-center text-center items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
         >
           <Code className="w-4 h-4" /> YARA / Suricata Rules
         </a>
@@ -92,7 +92,7 @@ export default function SocHub() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* HTML Smuggling */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
             <Search className="w-5 h-5 text-orange-500" />
             HTML Smuggling & Base64 Inspector
@@ -132,7 +132,7 @@ export default function SocHub() {
         </div>
 
         {/* Crypto Ledger */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
             <Coins className="w-5 h-5 text-yellow-500" />
             Crypto Extortion Ledger
@@ -149,7 +149,7 @@ export default function SocHub() {
                     </span>
                     <span className="text-sm font-medium text-gray-600">Bal: {wallet.balance}</span>
                   </div>
-                  <code className="text-xs text-gray-600 bg-white px-2 py-1 rounded block mb-2">{wallet.address}</code>
+                  <code className="text-xs text-gray-600 bg-white px-2 py-1 rounded block mb-2 break-all">{wallet.address}</code>
                   <p className="text-xs text-gray-500 text-right">Mock Txns: {wallet.transaction_count}</p>
                 </div>
               ))}
@@ -160,7 +160,7 @@ export default function SocHub() {
         </div>
 
         {/* Infra Fingerprints */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
           <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
             <Network className="w-5 h-5 text-indigo-500" />
             Infrastructure Fingerprinting

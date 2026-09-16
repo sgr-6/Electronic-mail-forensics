@@ -62,8 +62,8 @@ export default function AllCases() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {/* Toolbar */}
-        <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-wrap gap-4 justify-between items-center">
-          <div className="relative flex-1 max-w-md">
+        <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-stretch sm:items-center">
+          <div className="relative w-full sm:flex-1 sm:max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -76,10 +76,10 @@ export default function AllCases() {
             />
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter className="h-5 w-5 text-gray-400" />
             <select
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg"
+              className="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg"
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >
@@ -92,70 +92,101 @@ export default function AllCases() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
-              <tr>
-                <th className="px-6 py-3">ID / Date</th>
-                <th className="px-6 py-3">Subject</th>
-                <th className="px-6 py-3">Sender</th>
-                <th className="px-6 py-3">Risk Score</th>
-                <th className="px-6 py-3">Category</th>
-                <th className="px-6 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {loading ? (
+            <div className="px-4 py-12 text-center text-gray-500">
+              <div className="flex justify-center mb-2"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>
+              Loading cases...
+            </div>
+          ) : filteredCases.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">No cases match your filters.</div>
+          ) : filteredCases.map((c) => (
+            <Link to={`/case/${c.id}`} key={c.id} className="block p-4 hover:bg-gray-50">
+              <div className="flex justify-between items-start mb-1">
+                <span className="font-medium text-gray-900 text-sm truncate flex-1 mr-2">{c.subject}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getCategoryColor(c.risk_category)}`}>{c.risk_category}</span>
+              </div>
+              <div className="text-xs text-gray-500 mb-2 truncate">{c.from_address}</div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">#{c.id.substring(0,8)}... · {new Date(c.submitted_at || Date.now()).toLocaleDateString()}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 bg-gray-200 rounded-full h-1.5">
+                    <div className={`h-1.5 rounded-full ${c.risk_score > 75 ? 'bg-red-600' : c.risk_score > 40 ? 'bg-yellow-400' : 'bg-green-500'}`} style={{ width: `${c.risk_score}%` }}></div>
+                  </div>
+                  <span className="text-xs font-medium text-gray-700">{c.risk_score}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-gray-500">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                    <div className="flex justify-center mb-2">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                    Loading cases...
-                  </td>
+                  <th className="px-6 py-3">ID / Date</th>
+                  <th className="px-6 py-3">Subject</th>
+                  <th className="px-6 py-3">Sender</th>
+                  <th className="px-6 py-3">Risk Score</th>
+                  <th className="px-6 py-3">Category</th>
+                  <th className="px-6 py-3 text-right">Action</th>
                 </tr>
-              ) : filteredCases.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                    No cases match your filters.
-                  </td>
-                </tr>
-              ) : (
-                filteredCases.map((c) => (
-                  <tr key={c.id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">#{c.id.substring(0,8)}...</div>
-                      <div className="text-xs text-gray-400 mt-1">{new Date(c.submitted_at || Date.now()).toLocaleDateString()}</div>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-900 truncate max-w-[200px]">{c.subject}</td>
-                    <td className="px-6 py-4 truncate max-w-[200px]">{c.from_address}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-[60px]">
-                          <div 
-                            className={`h-2.5 rounded-full ${c.risk_score > 75 ? 'bg-red-600' : c.risk_score > 40 ? 'bg-yellow-400' : 'bg-green-500'}`}
-                            style={{ width: `${c.risk_score}%` }}
-                          ></div>
-                        </div>
-                        <span className="font-medium text-gray-700">{c.risk_score}</span>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                      <div className="flex justify-center mb-2">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getCategoryColor(c.risk_category)}`}>
-                        {c.risk_category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link to={`/case/${c.id}`} className="text-blue-600 hover:text-blue-800 hover:underline font-medium">
-                        Investigate
-                      </Link>
+                      Loading cases...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : filteredCases.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      No cases match your filters.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCases.map((c) => (
+                    <tr key={c.id} className="bg-white border-b hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">#{c.id.substring(0,8)}...</div>
+                        <div className="text-xs text-gray-400 mt-1">{new Date(c.submitted_at || Date.now()).toLocaleDateString()}</div>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-900 truncate max-w-xs">{c.subject}</td>
+                      <td className="px-6 py-4 truncate max-w-xs">{c.from_address}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-[60px]">
+                            <div 
+                              className={`h-2.5 rounded-full ${c.risk_score > 75 ? 'bg-red-600' : c.risk_score > 40 ? 'bg-yellow-400' : 'bg-green-500'}`}
+                              style={{ width: `${c.risk_score}%` }}
+                            ></div>
+                          </div>
+                          <span className="font-medium text-gray-700">{c.risk_score}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getCategoryColor(c.risk_category)}`}>
+                          {c.risk_category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link to={`/case/${c.id}`} className="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                          Investigate
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
         
         {/* Pagination controls */}
